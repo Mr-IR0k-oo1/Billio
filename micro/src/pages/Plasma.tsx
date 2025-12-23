@@ -3,6 +3,7 @@ import { Renderer, Program, Mesh, Triangle } from 'ogl';
 import './Plasma.css';
 
 interface PlasmaProps {
+  className?: string;
   color?: string;
   speed?: number;
   direction?: 'forward' | 'reverse' | 'pingpong';
@@ -90,6 +91,7 @@ void main() {
 }`;
 
 export const Plasma: React.FC<PlasmaProps> = ({
+  className,
   color = '#ffffff',
   speed = 1,
   direction = 'forward',
@@ -203,7 +205,7 @@ export const Plasma: React.FC<PlasmaProps> = ({
     };
   }, [color, speed, direction, scale, opacity, mouseInteractive]);
 
-  return <div ref={containerRef} className="plasma-container" />;
+  return <div ref={containerRef} className={`plasma-container ${className}`} />;
 };
 
 export default Plasma;

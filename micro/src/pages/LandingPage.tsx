@@ -106,19 +106,7 @@ export default function LandingPage() {
   ];
 
   return (
-    <div ref={rootRef} style={{ color: 'var(--text-primary)', minHeight: '100vh', scrollBehavior: 'smooth', background: 'transparent' }}>
-
-<div style={{ width: '100%', height: '', position: 'relative' }}>
-
-  <Plasma 
-    color="#ff6b35"
-    speed={0.6}
-    direction="forward"
-    scale={1.1}
-    opacity={0.8}
-    mouseInteractive={true}
-  />
-</div>
+    <div ref={rootRef} style={{ color: 'var(--text-primary)', minHeight: '100%', scrollBehavior: 'smooth', background: 'transparent' }}>
 
       {/* Navbar */}
       <nav style={{ 
@@ -127,7 +115,7 @@ export default function LandingPage() {
         alignItems: 'center', 
         padding: '20px 8%',
         background: 'transparent',
-        position: 'absolute', // Make nav absolute to float OVER the hero
+        position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
@@ -158,6 +146,7 @@ export default function LandingPage() {
         overflow: 'hidden', 
         background: 'transparent'
       }}>
+        <Plasma color="#3b82f6" opacity={0.3} className="hero-background" />
 
 
         
