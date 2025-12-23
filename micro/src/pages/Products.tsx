@@ -2,10 +2,17 @@ import { useState, useEffect } from 'react';
 import { api } from '../lib/api';
 import { Plus, Trash2, Edit2 } from 'lucide-react';
 
+interface Product {
+  id: number;
+  name: string;
+  unit_price: string | number;
+  description: string;
+}
+
 export default function Products() {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState({ name: '', unit_price: '', description: '' });
 
   useEffect(() => {
@@ -73,7 +80,7 @@ export default function Products() {
               {products.map((product) => (
                 <tr key={product.id}>
                   <td style={{ fontWeight: 500 }}>{product.name}</td>
-                  <td style={{ color: 'var(--success-color)' }}>${parseFloat(product.unit_price).toFixed(2)}</td>
+                  <td style={{ color: 'var(--success-color)' }}>${parseFloat(product.unit_price.toString()).toFixed(2)}</td>
                   <td style={{ color: 'var(--text-secondary)' }}>{product.description}</td>
                   <td>
                     <div style={{ display: 'flex', gap: '12px' }}>

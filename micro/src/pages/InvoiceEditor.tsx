@@ -10,12 +10,17 @@ interface LineItem {
   unit_price: number;
 }
 
+interface Client {
+  id: number;
+  name: string;
+}
+
 export default function InvoiceEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = !!id;
 
-  const [clients, setClients] = useState<any[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiNotes, setAiNotes] = useState('');
@@ -74,7 +79,7 @@ export default function InvoiceEditor() {
   };
 
   const calculateTotal = () => {
-    return formData.items.reduce((acc, item) => acc + (item.quantity * item.unit_price), 0);
+    return formData.items.reduce((acc: number, item: LineItem) => acc + (item.quantity * item.unit_price), 0);
   };
 
   const handleSave = async () => {

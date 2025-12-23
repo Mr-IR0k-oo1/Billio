@@ -13,11 +13,17 @@ const Sidebar = () => {
   const location = useLocation();
   
   const links = [
-    { to: '/', label: 'Dashboard', icon: LayoutDashboard },
+    { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/invoices', label: 'Invoices', icon: FileText },
     { to: '/clients', label: 'Clients', icon: Users },
     { to: '/products', label: 'Products', icon: Package },
   ];
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  };
 
   return (
     <aside className="sidebar">
@@ -48,7 +54,11 @@ const Sidebar = () => {
           <PlusCircle size={20} />
           <span>New Invoice</span>
         </Link>
-        <button className="nav-link" style={{ width: '100%', border: 'none', background: 'none', cursor: 'pointer' }}>
+        <button 
+          className="nav-link" 
+          onClick={handleLogout}
+          style={{ width: '100%', border: 'none', background: 'none', cursor: 'pointer', textAlign: 'left' }}
+        >
           <LogOut size={20} />
           <span>Logout</span>
         </button>

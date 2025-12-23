@@ -1,9 +1,16 @@
 import { useState, useEffect } from 'react';
 import { api } from '../lib/api';
-import { Plus, Search, Trash2, Edit2 } from 'lucide-react';
+import { Plus, Trash2, Edit2 } from 'lucide-react';
+
+interface Client {
+  id: number;
+  name: string;
+  email: string;
+  address: string;
+}
 
 export default function Clients() {
-  const [clients, setClients] = useState<any[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<any>(null);
   const [formData, setFormData] = useState({ name: '', email: '', address: '' });

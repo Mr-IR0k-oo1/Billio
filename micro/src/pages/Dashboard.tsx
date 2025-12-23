@@ -3,21 +3,29 @@ import { api } from '../lib/api';
 import { Plus, Users, FileText, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+interface Invoice {
+  id: number;
+  client_name: string;
+  total: string | number;
+  status: 'draft' | 'sent' | 'paid' | 'overdue';
+  due_date: string;
+}
+
 export default function Dashboard() {
   const [stats, setStats] = useState({
     totalInvoices: 0,
     totalClients: 0,
     revenue: 0,
-    recentInvoices: [] as any[]
+    recentInvoices: [] as Invoice[]
   });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const invoices = await api.get('/invoices');
+        const invoices: Invoice[] = await api.get('/invoices');
         const clients = await api.get('/clients');
         
-        const total = invoices.reduce((acc: number, inv: any) => acc + parseFloat(inv.total), 0);
+        const total = invoices.reduce((acc: number, inv: Invoice) => acc + parseFloat(inv.total.toString()), 0);
         
         setStats({
           totalInvoices: invoices.length,
@@ -89,7 +97,7 @@ export default function Dashboard() {
                     </span>
                   </td>
                   <td>{new Date(invoice.due_date).toLocaleDateString()}</td>
-                  <td>${parseFloat(invoice.total).toFixed(2)}</td>
+                  <td>${parseFloat(invoice.total.toString()).toFixed(2)}</td>
                   <td>
                     <Link to={`/invoices/${invoice.id}`} style={{ color: 'var(--accent-color)', textDecoration: 'none' }}>Edit</Link>
                   </td>

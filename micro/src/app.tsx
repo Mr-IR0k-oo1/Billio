@@ -6,20 +6,42 @@ import InvoiceEditor from './pages/InvoiceEditor';
 import Clients from './pages/Clients';
 import Products from './pages/Products';
 import Login from './pages/Login';
+import Register from './pages/Register';
+import LandingPage from './pages/LandingPage';
 
-// Simple Auth Guard (Mock)
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-  const isAuthenticated = true; // In a real app, check token
-  return isAuthenticated ? <Layout>{children}</Layout> : <Navigate to="/login" />;
+  const token = localStorage.getItem('token');
+  return token ? <Layout>{children}</Layout> : <Navigate to="/login" />;
+};
+
+const PublicRoute = ({ children, redirectTo = "/" }: { children: React.ReactNode, redirectTo?: string }) => {
+  const token = localStorage.getItem('token');
+  return token ? <Navigate to={redirectTo} /> : <>{children}</>;
 };
 
 export function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        
         <Route path="/" element={
+          <PublicRoute>
+            <LandingPage />
+          </PublicRoute>
+        } />
+
+        <Route path="/login" element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        } />
+
+        <Route path="/register" element={
+          <PublicRoute>
+            <Register />
+          </PublicRoute>
+        } />
+        
+        <Route path="/dashboard" element={
           <PrivateRoute>
             <Dashboard />
           </PrivateRoute>

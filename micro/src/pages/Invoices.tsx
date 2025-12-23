@@ -1,10 +1,19 @@
 import { useState, useEffect } from 'react';
 import { api } from '../lib/api';
-import { Plus, Download, Mail, Filter, Trash2, Edit2 } from 'lucide-react';
+import { Plus, Download, Mail, Filter, Edit2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+interface Invoice {
+  id: number;
+  client_name: string;
+  created_at: string;
+  due_date: string;
+  total: string | number;
+  status: 'draft' | 'sent' | 'paid' | 'overdue';
+}
+
 export default function Invoices() {
-  const [invoices, setInvoices] = useState<any[]>([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
@@ -94,7 +103,7 @@ export default function Invoices() {
                   <td>{inv.client_name}</td>
                   <td style={{ color: 'var(--text-secondary)' }}>{new Date(inv.created_at).toLocaleDateString()}</td>
                   <td style={{ color: 'var(--text-secondary)' }}>{new Date(inv.due_date).toLocaleDateString()}</td>
-                  <td style={{ fontWeight: 600 }}>${parseFloat(inv.total).toFixed(2)}</td>
+                  <td style={{ fontWeight: 600 }}>${parseFloat(inv.total.toString()).toFixed(2)}</td>
                   <td>
                     <span className={`badge badge-${inv.status}`}>
                       {inv.status}
