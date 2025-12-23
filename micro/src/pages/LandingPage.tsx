@@ -107,6 +107,20 @@ export default function LandingPage() {
 
   return (
     <div ref={rootRef} style={{ color: 'var(--text-primary)', minHeight: '100vh', scrollBehavior: 'smooth', background: 'transparent' }}>
+
+<div style={{ width: '100%', height: '', position: 'relative' }}>
+
+  <Plasma 
+    color="#ff6b35"
+    speed={0.6}
+    direction="forward"
+    scale={1.1}
+    opacity={0.8}
+    mouseInteractive={true}
+  />
+</div>
+
+      {/* Navbar */}
       <nav style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
@@ -131,6 +145,7 @@ export default function LandingPage() {
         </div>
       </nav>
 
+      {/* Hero Section */}
       <section style={{ 
         height: '100vh', 
         display: 'flex', 
@@ -143,115 +158,30 @@ export default function LandingPage() {
         overflow: 'hidden', 
         background: 'transparent'
       }}>
-        {/* Plasma Background */}
-        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, pointerEvents: 'none' }}>
-          <Plasma 
-            color="#4d5652ff"
-            speed={0.4}
-            direction="forward"
-            scale={1.5}
-            opacity={0.6}
-            mouseInteractive={true}
-          />
-        </div>
 
-        {/* Subtle Radial Gradient Overlay for focus */}
-        <div style={{ 
-          position: 'absolute', 
-          top: 0, 
-          left: 0, 
-          width: '100%', 
-          height: '100%', 
-          zIndex: 1, 
-          background: 'radial-gradient(circle at center, transparent 0%, rgba(5, 5, 5, 0.4) 100%)',
-          pointerEvents: 'none'
-        }} />
 
+        
         <motion.div
-          style={{ position: 'relative', zIndex: 2, maxWidth: '1000px' }}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+          style={{ position: 'relative', zIndex: 1 }}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, ease: "easeOut" }}
         >
-          {/* Badge */}
-          <div style={{ 
-            display: 'inline-flex', 
-            alignItems: 'center', 
-            gap: '8px', 
-            padding: '6px 16px', 
-            background: 'rgba(59, 130, 246, 0.1)', 
-            border: '1px solid rgba(59, 130, 246, 0.2)', 
-            borderRadius: '100px', 
-            marginBottom: '32px',
-            backdropFilter: 'blur(10px)'
-          }}>
-            <Sparkles size={14} color="var(--accent-color)" />
-            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--accent-color)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-              The future of invoicing is here
-            </span>
-          </div>
-
-          <h1 style={{ 
-            fontSize: 'max(4.5rem, 7vw)', 
-            fontWeight: 800, 
-            lineHeight: 1.05, 
-            marginBottom: '32px', 
-            letterSpacing: '-0.04em',
-            color: 'white'
-          }}>
-            Create invoices in <br/>
-            <span style={{ 
-              background: 'linear-gradient(to right, #3b82f6, #9333ea)', 
-              WebkitBackgroundClip: 'text', 
-              WebkitTextFillColor: 'transparent',
-              textShadow: '0 0 40px rgba(59, 130, 246, 0.2)' 
-            }}>60 seconds.</span>
+          <h1 style={{ fontSize: 'max(4rem, 6vw)', fontWeight: 800, lineHeight: 1.1, marginBottom: '24px', letterSpacing: '-0.03em' }}>
+            Create invoices in <span style={{ color: 'var(--accent-color)', textShadow: '0 0 20px rgba(59, 130, 246, 0.4)' }}>60 seconds.</span> <br/>
+            Not 10 minutes.
           </h1>
-
-          <p style={{ 
-            fontSize: '1.4rem', 
-            color: 'var(--text-secondary)', 
-            maxWidth: '720px', 
-            margin: '0 auto 56px', 
-            lineHeight: 1.6,
-            fontWeight: 400
-          }}>
-            AI handles the heavy lifting—writing descriptions and filling data—so you can get back to what you love doing.
+          <p style={{ fontSize: '1.4rem', color: 'var(--text-secondary)', maxWidth: '800px', margin: '0 auto 48px', lineHeight: 1.6 }}>
+            AI writes your invoice descriptions, fills line items, and helps you get paid faster — without spreadsheets or templates.
           </p>
-
-          <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', alignItems: 'center' }}>
-            <button 
-              onClick={() => navigate('/register')} 
-              className="btn-primary" 
-              style={{ 
-                padding: '18px 48px', 
-                fontSize: '1.2rem', 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '12px', 
-                borderRadius: '16px',
-                boxShadow: '0 20px 40px -10px rgba(59, 130, 246, 0.5)',
-                fontWeight: 600
-              }}
-            >
-              Start for Free <ArrowRight size={20} />
+          <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
+            <button onClick={() => navigate('/register')} className="btn-primary" style={{ padding: '20px 48px', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: '0 10px 40px -10px rgba(59, 130, 246, 0.5)' }}>
+              Create Your First Invoice <ArrowRight size={20} />
             </button>
-            <button 
-              onClick={() => {
-                 document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
-              }} 
-              className="btn-ghost" 
-              style={{ 
-                padding: '18px 48px', 
-                fontSize: '1.2rem', 
-                border: '1px solid var(--glass-border)', 
-                background: 'rgba(255,255,255,0.03)',
-                borderRadius: '16px',
-                backdropFilter: 'blur(10px)',
-                fontWeight: 600
-              }}
-            >
-              How it works
+            <button onClick={() => {
+               document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
+            }} className="btn-ghost" style={{ padding: '20px 48px', fontSize: '1.2rem', border: '1px solid var(--glass-border)', background: 'rgba(255,255,255,0.05)' }}>
+              See How It Works
             </button>
           </div>
         </motion.div>

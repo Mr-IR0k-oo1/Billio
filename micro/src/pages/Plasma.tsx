@@ -12,7 +12,7 @@ interface PlasmaProps {
 }
 
 const hexToRgb = (hex: string): [number, number, number] => {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?$/i.exec(hex);
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   if (!result) return [1, 0.5, 0.2];
   return [parseInt(result[1], 16) / 255, parseInt(result[2], 16) / 255, parseInt(result[3], 16) / 255];
 };
@@ -115,7 +115,6 @@ export const Plasma: React.FC<PlasmaProps> = ({
       dpr: Math.min(window.devicePixelRatio || 1, 2)
     });
     const gl = renderer.gl;
-    gl.clearColor(0, 0, 0, 0);
     const canvas = gl.canvas as HTMLCanvasElement;
     canvas.style.display = 'block';
     canvas.style.width = '100%';
