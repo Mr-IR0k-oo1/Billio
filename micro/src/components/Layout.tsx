@@ -28,7 +28,7 @@ const Sidebar = () => {
   return (
     <aside className="sidebar">
       <div className="brand">
-        <h2 style={{ color: 'var(--accent-color)', marginBottom: '8px' }}>Micro</h2>
+        <h2 style={{ color: 'var(--accent-color)', marginBottom: '8px' }}>Billio</h2>
         <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Intelligent Invoicing</p>
       </div>
       

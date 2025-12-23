@@ -1,5 +1,5 @@
 {
-  "name": "micro",
+  "name": "billio",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -14,7 +14,9 @@
     "@types/three": "^0.182.0",
     "framer-motion": "^12.23.26",
     "gsap": "^3.14.2",
+    "gsap-trial": "^3.12.7",
     "lucide-react": "^0.562.0",
+    "ogl": "^1.0.11",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-router-dom": "^7.11.0",
