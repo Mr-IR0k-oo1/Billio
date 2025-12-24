@@ -7,7 +7,7 @@ import Clients from './pages/Clients';
 import Products from './pages/Products';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import LandingPage from './pages/LandingPage';
+import HomePage from './pages/HomePage';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const token = localStorage.getItem('token');
@@ -25,7 +25,7 @@ export function App() {
       <Routes>
         <Route path="/" element={
           <PublicRoute>
-            <LandingPage />
+            <HomePage />
           </PublicRoute>
         } />
 
