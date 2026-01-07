@@ -15,10 +15,10 @@ import { Footer } from '../components/home/Footer';
 export default function HomePage() {
   return (
     <div className="home-page">
-      <div className="fixed top-0 left-0 right-0 z-50 bg-[#050505]/80 backdrop-blur-md border-b border-white/5">
+      <div className="navbar-fixed">
         <Navbar />
       </div>
-      <div className="pt-20"> {/* Offset for fixed navbar */}
+      <div className="content-offset"> {/* Offset for fixed navbar */}
         <Hero />
         <Problem />
         <Features />

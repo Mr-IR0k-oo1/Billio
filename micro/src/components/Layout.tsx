@@ -6,7 +6,11 @@ import {
   Package, 
   FileText, 
   LogOut,
-  PlusCircle
+  PlusCircle,
+  BarChart3,
+  FileSpreadsheet,
+  Settings as SettingsIcon,
+  Repeat
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -15,8 +19,12 @@ const Sidebar = () => {
   const links = [
     { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/invoices', label: 'Invoices', icon: FileText },
+    { to: '/estimates', label: 'Estimates', icon: FileSpreadsheet },
+    { to: '/recurring', label: 'Recurring', icon: Repeat },
     { to: '/clients', label: 'Clients', icon: Users },
     { to: '/products', label: 'Products', icon: Package },
+    { to: '/reports', label: 'Reports', icon: BarChart3 },
+    { to: '/settings', label: 'Settings', icon: SettingsIcon },
   ];
 
   const handleLogout = () => {

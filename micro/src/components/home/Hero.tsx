@@ -1,19 +1,22 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, PlayCircle } from 'lucide-react';
-import Plasma from '../../pages/Plasma';
+import { ArrowRight, PlayCircle, Target, Sparkles } from 'lucide-react';
+import React from 'react';
+import Plasma, { PlasmaFallback } from '../../pages/Plasma';
 
 export const Hero = () => (
   <section className="hero-section">
     <div style={{ position: 'absolute', inset: 0, zIndex: 0, overflow: 'hidden' }}>
-      <Plasma 
-        color="#ff6b35"
-        speed={0.6}
-        direction="forward"
-        scale={1.1}
-        opacity={0.8}
-        mouseInteractive={true}
-      />
+      <React.Suspense fallback={<PlasmaFallback />}>
+        <Plasma 
+          color="#ff6b35"
+          speed={0.6}
+          direction="forward"
+          scale={1.1}
+          opacity={0.8}
+          mouseInteractive={true}
+        />
+      </React.Suspense>
     </div>
     <div className="home-container relative z-10">
       <motion.div
@@ -21,8 +24,8 @@ export const Hero = () => (
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <span className="inline-block px-4 py-1.5 rounded-full bg-blue-500/10 text-blue-400 text-sm font-medium mb-6 border border-blue-500/20">
-          🎯 Trusted by 1,000+ freelancers
+        <span className="trusted-badge">
+          <Target size={16} className="inline-block mr-2" /> Trusted by 1,000+ freelancers
         </span>
         <h1 className="home-h1">
           Stop wasting hours on <br />
@@ -31,27 +34,27 @@ export const Hero = () => (
         <p className="home-subtitle mb-10">
           AI writes your invoice descriptions in seconds. Get paid 3x faster with professional invoices that practically write themselves.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <Link to="/register" className="btn-cta flex items-center gap-2">
+        <div className="hero-buttons">
+          <Link to="/register" className="btn-cta btn-cta-with-icon">
             Start free trial <ArrowRight size={20} />
           </Link>
-          <button className="btn-secondary flex items-center gap-2">
+          <button className="btn-secondary btn-secondary-with-icon">
             <PlayCircle size={20} /> Watch 2-min demo
           </button>
         </div>
-        <p className="mt-6 text-sm text-gray-500">
-          ✨ 14-day free trial • No credit card required
+        <p className="hero-note">
+          <Sparkles size={16} className="inline-block mr-2" /> 14-day free trial • No credit card required
         </p>
       </motion.div>
 
       {/* Hero Image / UI Preview */}
       <motion.div 
-        className="mt-16 glass-panel p-2 md:p-4 max-w-5xl mx-auto shadow-2xl shadow-blue-500/10"
+        className="hero-preview glass-panel"
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2 }}
       >
-        <div className="bg-[#0A0A0A] rounded-xl overflow-hidden aspect-[16/10] relative group border border-white/5">
+        <div className="preview-screen">
            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
               {/* Enhanced UI representation with AI input */}
               <div className="w-full h-full glass-panel border border-white/10 p-8 flex flex-col">

@@ -20,10 +20,12 @@ interface Client {
   address: string;
 }
 
-export default function InvoiceEditor() {
+export default function InvoiceEditor({ isEstimate = false }: { isEstimate?: boolean }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = !!id;
+  const typeLabel = isEstimate ? 'Estimate' : 'Invoice';
+  const apiEndpoint = isEstimate ? '/estimates' : '/invoices';
 
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(false);
@@ -33,8 +35,11 @@ export default function InvoiceEditor() {
   const [formData, setFormData] = useState({
     client_id: '',
     status: 'draft',
-    due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    items: [] as LineItem[]
+    due_date: new Date(Date.now() + (isEstimate ? 30 : 7) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    issue_date: new Date().toISOString().split('T')[0],
+    items: [] as LineItem[],
+    notes: '',
+    terms: ''
   });
 
   const [selectedTemplate, setSelectedTemplate] = useState<'minimalist' | 'professional' | 'creative'>('minimalist');
@@ -42,26 +47,34 @@ export default function InvoiceEditor() {
 
   useEffect(() => {
     fetchClients();
-    if (isEdit) fetchInvoice();
-  }, [id]);
+    if (isEdit) fetchDocument();
+  }, [id, isEstimate]);
 
   const fetchClients = async () => {
-    const data = await api.get('/clients');
-    setClients(data);
+    try {
+      const data = await api.get('/clients');
+      setClients(data);
+    } catch (err) {
+      console.error('Failed to fetch clients');
+    }
   };
 
-  const fetchInvoice = async () => {
+  const fetchDocument = async () => {
     setLoading(true);
     try {
-      const data = await api.get(`/invoices/${id}`);
+      const data = await api.get(`${apiEndpoint}/${id}`);
       setFormData({
-        client_id: data.client_id.toString(),
+        client_id: data.client_id?.toString() || '',
         status: data.status,
-        due_date: new Date(data.due_date).toISOString().split('T')[0],
-        items: data.items.map((it: any) => ({ ...it, unit_price: parseFloat(it.unit_price), quantity: parseFloat(it.quantity) }))
+        due_date: new Date(data.expiry_date || data.due_date).toISOString().split('T')[0],
+        issue_date: new Date(data.issue_date).toISOString().split('T')[0],
+        items: data.items.map((it: any) => ({ ...it, unit_price: parseFloat(it.unit_price), quantity: parseFloat(it.quantity) })),
+        notes: data.notes || '',
+        terms: data.terms || ''
       });
     } catch (err) {
       console.error(err);
+      navigate(isEstimate ? '/estimates' : '/invoices');
     } finally {
       setLoading(false);
     }
@@ -91,23 +104,28 @@ export default function InvoiceEditor() {
   };
 
   const handleSave = async () => {
+    if (!formData.client_id) {
+      alert('Please select a client');
+      return;
+    }
+    
     setLoading(true);
     try {
       const payload = {
         ...formData,
         client_id: parseInt(formData.client_id),
         total: calculateTotal(),
-        user_id: 1 // Mock
+        [isEstimate ? 'expiry_date' : 'due_date']: formData.due_date,
       };
 
       if (isEdit) {
-        await api.put(`/invoices/${id}`, payload);
+        await api.put(`${apiEndpoint}/${id}`, payload);
       } else {
-        await api.post('/invoices', payload);
+        await api.post(apiEndpoint, payload);
       }
-      navigate('/invoices');
-    } catch (err) {
-      alert('Failed to save invoice');
+      navigate(isEstimate ? '/estimates' : '/invoices');
+    } catch (err: any) {
+      alert(err.response?.data?.error || `Failed to save ${typeLabel}`);
     } finally {
       setLoading(false);
     }
@@ -137,12 +155,12 @@ export default function InvoiceEditor() {
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto' }}>
       <div className="page-header">
-        <h1>{isEdit ? `Edit Invoice #${id}` : 'Create New Invoice'}</h1>
+        <h1>{isEdit ? `Edit ${typeLabel} #${id}` : `Create New ${typeLabel}`}</h1>
         <div style={{ display: 'flex', gap: '12px' }}>
-          <button className="btn-ghost" onClick={() => navigate('/invoices')}>Cancel</button>
+          <button className="btn-ghost" onClick={() => navigate(isEstimate ? '/estimates' : '/invoices')}>Cancel</button>
           <button className="btn-primary" onClick={handleSave} disabled={loading} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             {loading ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
-            Save Draft
+            Save {typeLabel}
           </button>
         </div>
       </div>
@@ -188,7 +206,7 @@ export default function InvoiceEditor() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '24px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div className="glass-card">
-            <h3>Invoice Details</h3>
+            <h3>{typeLabel} Details</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '20px' }}>
               <div className="form-group">
                 <label>Client</label>
@@ -202,7 +220,28 @@ export default function InvoiceEditor() {
                 </select>
               </div>
               <div className="form-group">
-                <label>Due Date</label>
+                <label>Status</label>
+                <select 
+                  value={formData.status} 
+                  onChange={e => setFormData({ ...formData, status: e.target.value })}
+                  disabled
+                >
+                  <option value="draft">Draft</option>
+                  <option value="sent">Sent</option>
+                  <option value="paid">Paid</option>
+                  <option value={isEstimate ? 'accepted' : 'overdue'}>{isEstimate ? 'Accepted' : 'Overdue'}</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Issue Date</label>
+                <input 
+                  type="date" 
+                  value={formData.issue_date} 
+                  onChange={e => setFormData({ ...formData, issue_date: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>{isEstimate ? 'Expiry Date' : 'Due Date'}</label>
                 <input 
                   type="date" 
                   value={formData.due_date} 

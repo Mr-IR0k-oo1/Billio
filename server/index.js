@@ -6,6 +6,11 @@ const { generateInvoicePdf } = require('./services/pdfService');
 const { sendInvoiceEmail } = require('./services/emailService');
 const auth = require('./middleware/auth');
 const authRouter = require('./routes/auth');
+const companyRouter = require('./routes/company');
+const paymentsRouter = require('./routes/payments');
+const estimatesRouter = require('./routes/estimates');
+const recurringRouter = require('./routes/recurring');
+const reportsRouter = require('./routes/reports');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -23,18 +28,40 @@ pool.on('connect', () => {
   console.log('Connected to PostgreSQL');
 });
 
-// Auth Routes
+// Make pool available to routes
+app.set('pool', pool);
+
+// Routes
 app.use('/api/auth', authRouter);
+app.use('/api/company', companyRouter);
+app.use('/api/invoices', paymentsRouter);
+app.use('/api/estimates', estimatesRouter);
+app.use('/api/recurring', recurringRouter);
+app.use('/api/reports', reportsRouter);
 
 // Basic Route
 app.get('/', (req, res) => {
-  res.send('Invoicing API is running');
+  res.send('Billio Invoicing API v2.0 is running');
 });
 
 // Clients API (Scoped by User)
 app.get('/api/clients', auth, async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM clients WHERE user_id = $1 ORDER BY name ASC', [req.user.id]);
+    const { search, status } = req.query;
+    let query = 'SELECT * FROM clients WHERE user_id = $1';
+    const params = [req.user.id];
+    
+    if (search) {
+      query += ' AND (name ILIKE $2 OR email ILIKE $2)';
+      params.push(`%${search}%`);
+    }
+    if (status) {
+      query += ` AND status = $${params.length + 1}`;
+      params.push(status);
+    }
+    query += ' ORDER BY name ASC';
+    
+    const result = await pool.query(query, params);
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -42,11 +69,12 @@ app.get('/api/clients', auth, async (req, res) => {
 });
 
 app.post('/api/clients', auth, async (req, res) => {
-  const { name, email, address } = req.body;
+  const { name, email, address, phone, tax_id, payment_terms, notes, status } = req.body;
   try {
     const result = await pool.query(
-      'INSERT INTO clients (user_id, name, email, address) VALUES ($1, $2, $3, $4) RETURNING *',
-      [req.user.id, name, email, address]
+      `INSERT INTO clients (user_id, name, email, address, phone, tax_id, payment_terms, notes, status) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      [req.user.id, name, email, address, phone, tax_id, payment_terms || 30, notes, status || 'active']
     );
     res.json(result.rows[0]);
   } catch (err) {
@@ -56,11 +84,13 @@ app.post('/api/clients', auth, async (req, res) => {
 
 app.put('/api/clients/:id', auth, async (req, res) => {
   const { id } = req.params;
-  const { name, email, address } = req.body;
+  const { name, email, address, phone, tax_id, payment_terms, notes, status } = req.body;
   try {
     const result = await pool.query(
-      'UPDATE clients SET name = $1, email = $2, address = $3 WHERE id = $4 AND user_id = $5 RETURNING *',
-      [name, email, address, id, req.user.id]
+      `UPDATE clients SET name = $1, email = $2, address = $3, phone = $4, tax_id = $5, 
+       payment_terms = $6, notes = $7, status = $8 
+       WHERE id = $9 AND user_id = $10 RETURNING *`,
+      [name, email, address, phone, tax_id, payment_terms, notes, status, id, req.user.id]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Client not found' });
     res.json(result.rows[0]);
@@ -132,13 +162,31 @@ app.delete('/api/products/:id', auth, async (req, res) => {
 // Invoices API (Scoped by User)
 app.get('/api/invoices', auth, async (req, res) => {
   try {
-    const result = await pool.query(`
+    const { search, status, client_id } = req.query;
+    let query = `
       SELECT i.*, c.name as client_name 
       FROM invoices i 
       LEFT JOIN clients c ON i.client_id = c.id 
       WHERE i.user_id = $1
-      ORDER BY i.created_at DESC
-    `, [req.user.id]);
+    `;
+    const params = [req.user.id];
+    
+    if (search) {
+      query += ` AND (i.invoice_number ILIKE $${params.length + 1} OR c.name ILIKE $${params.length + 1})`;
+      params.push(`%${search}%`);
+    }
+    if (status) {
+      query += ` AND i.status = $${params.length + 1}`;
+      params.push(status);
+    }
+    if (client_id) {
+      query += ` AND i.client_id = $${params.length + 1}`;
+      params.push(client_id);
+    }
+    
+    query += ' ORDER BY i.created_at DESC';
+    
+    const result = await pool.query(query, params);
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -171,13 +219,29 @@ app.get('/api/invoices/:id', auth, async (req, res) => {
 });
 
 app.post('/api/invoices', auth, async (req, res) => {
-  const { client_id, status, due_date, total, items } = req.body;
+  const { 
+    client_id, status, due_date, subtotal, tax_rate, tax_amount, discount, 
+    discount_type, total, currency, notes, terms, template_type, items 
+  } = req.body;
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    
+    // Generate invoice number
+    const { generateInvoiceNumber } = require('./services/numberingService');
+    const invoice_number = await generateInvoiceNumber(client, req.user.id);
+    
     const invoiceResult = await client.query(
-      'INSERT INTO invoices (user_id, client_id, status, due_date, total) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [req.user.id, client_id, status || 'draft', due_date, total || 0]
+      `INSERT INTO invoices (
+        user_id, client_id, invoice_number, status, due_date, 
+        subtotal, tax_rate, tax_amount, discount, discount_type, 
+        total, currency, notes, terms, template_type
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING *`,
+      [
+        req.user.id, client_id, invoice_number, status || 'draft', due_date,
+        subtotal || 0, tax_rate || 0, tax_amount || 0, discount || 0, discount_type || 'fixed',
+        total || 0, currency || 'USD', notes, terms, template_type || 'minimalist'
+      ]
     );
     const invoiceId = invoiceResult.rows[0].id;
 
@@ -189,6 +253,13 @@ app.post('/api/invoices', auth, async (req, res) => {
         );
       }
     }
+    
+    // Log activity
+    await client.query(
+      `INSERT INTO activity_log (user_id, action, entity_type, entity_id, details)
+       VALUES ($1, 'created', 'invoice', $2, $3)`,
+      [req.user.id, invoiceId, JSON.stringify({ invoice_number })]
+    );
 
     await client.query('COMMIT');
     res.json(invoiceResult.rows[0]);
@@ -202,7 +273,10 @@ app.post('/api/invoices', auth, async (req, res) => {
 
 app.put('/api/invoices/:id', auth, async (req, res) => {
   const { id } = req.params;
-  const { client_id, status, due_date, total, items } = req.body;
+  const { 
+    client_id, status, due_date, subtotal, tax_rate, tax_amount, discount,
+    discount_type, total, currency, notes, terms, template_type, items 
+  } = req.body;
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -214,8 +288,17 @@ app.put('/api/invoices/:id', auth, async (req, res) => {
     }
 
     const invoiceResult = await client.query(
-      'UPDATE invoices SET client_id = $1, status = $2, due_date = $3, total = $4 WHERE id = $5 RETURNING *',
-      [client_id, status, due_date, total, id]
+      `UPDATE invoices SET 
+        client_id = $1, status = $2, due_date = $3, 
+        subtotal = $4, tax_rate = $5, tax_amount = $6, discount = $7, discount_type = $8,
+        total = $9, currency = $10, notes = $11, terms = $12, template_type = $13,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = $14 RETURNING *`,
+      [
+        client_id, status, due_date,
+        subtotal, tax_rate, tax_amount, discount, discount_type,
+        total, currency, notes, terms, template_type, id
+      ]
     );
 
     if (items) {

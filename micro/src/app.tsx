@@ -1,13 +1,20 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { Layout } from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Invoices from './pages/Invoices';
 import InvoiceEditor from './pages/InvoiceEditor';
+import InvoiceView from './pages/InvoiceView';
 import Clients from './pages/Clients';
 import Products from './pages/Products';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import HomePage from './pages/HomePage';
+import Settings from './pages/Settings';
+import Reports from './pages/Reports';
+import Estimates from './pages/Estimates';
+import RecurringInvoices from './pages/RecurringInvoices';
+import RecurringInvoiceEditor from './pages/RecurringInvoiceEditor';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const token = localStorage.getItem('token');
@@ -61,6 +68,12 @@ export function App() {
 
         <Route path="/invoices/:id" element={
           <PrivateRoute>
+            <InvoiceView />
+          </PrivateRoute>
+        } />
+
+        <Route path="/invoices/:id/edit" element={
+          <PrivateRoute>
             <InvoiceEditor />
           </PrivateRoute>
         } />
@@ -77,8 +90,57 @@ export function App() {
           </PrivateRoute>
         } />
 
+        <Route path="/estimates" element={
+          <PrivateRoute>
+            <Estimates />
+          </PrivateRoute>
+        } />
+
+        <Route path="/estimates/new" element={
+          <PrivateRoute>
+            <InvoiceEditor isEstimate />
+          </PrivateRoute>
+        } />
+
+        <Route path="/estimates/:id" element={
+          <PrivateRoute>
+            <InvoiceEditor isEstimate />
+          </PrivateRoute>
+        } />
+
+        <Route path="/recurring" element={
+          <PrivateRoute>
+            <RecurringInvoices />
+          </PrivateRoute>
+        } />
+
+        <Route path="/recurring/new" element={
+          <PrivateRoute>
+            <RecurringInvoiceEditor />
+          </PrivateRoute>
+        } />
+
+        <Route path="/recurring/:id" element={
+          <PrivateRoute>
+            <RecurringInvoiceEditor />
+          </PrivateRoute>
+        } />
+
+        <Route path="/reports" element={
+          <PrivateRoute>
+            <Reports />
+          </PrivateRoute>
+        } />
+
+        <Route path="/settings" element={
+          <PrivateRoute>
+            <Settings />
+          </PrivateRoute>
+        } />
+
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
+      <Toaster position="top-right" />
     </Router>
   );
 }

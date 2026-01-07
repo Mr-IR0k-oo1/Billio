@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Timer, Users, Zap } from 'lucide-react';
+import { ArrowRight, Timer, Users, Zap, Sparkles, Clock, Lock } from 'lucide-react';
 
 export const FinalCTA = () => (
   <section className="cta-section relative overflow-hidden">
@@ -37,15 +37,15 @@ export const FinalCTA = () => (
             Start free trial now <ArrowRight className="group-hover:translate-x-1 transition-transform" />
           </Link>
           <div className="text-sm text-gray-500 space-y-1">
-            <div>✨ No credit card required</div>
-            <div>⏰ Limited time offer</div>
+            <div className="flex items-center justify-center gap-2"><Sparkles size={14} /> No credit card required</div>
+            <div className="flex items-center justify-center gap-2"><Clock size={14} /> Limited time offer</div>
           </div>
         </div>
 
         {/* Trust indicators */}
         <div className="mt-12 pt-8 border-t border-white/10">
           <div className="flex items-center justify-center gap-6 text-xs text-gray-500">
-            <span>🔒 Bank-level security</span>
+            <span className="flex items-center gap-2"><Lock size={12} /> Bank-level security</span>
             <span>•</span>
             <span>GDPR compliant</span>
             <span>•</span>
