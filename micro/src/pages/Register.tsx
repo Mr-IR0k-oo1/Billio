@@ -103,7 +103,32 @@ export default function Register() {
           </button>
         </form>
 
-        <p style={{ textAlign: 'center', marginTop: '24px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+        {/* Demo Access Link */}
+        <div style={{ 
+          marginTop: '20px', 
+          padding: '12px', 
+          background: 'rgba(59, 130, 246, 0.1)', 
+          borderRadius: '8px', 
+          textAlign: 'center',
+          fontSize: '0.85rem'
+        }}>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '8px' }}>
+            Want to try before you sign up?
+          </p>
+          <span 
+            onClick={() => navigate('/login')} 
+            style={{ 
+              color: '#60a5fa', 
+              cursor: 'pointer', 
+              fontWeight: '600',
+              textDecoration: 'underline'
+            }}
+          >
+            Use Demo Account →
+          </span>
+        </div>
+
+        <p style={{ textAlign: 'center', marginTop: '16px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
           Already have an account? <span onClick={() => navigate('/login')} style={{ color: 'var(--accent-color)', cursor: 'pointer' }}>Sign In <ArrowRight size={14} style={{ verticalAlign: 'middle' }} /></span>
         </p>
       </div>

@@ -68,10 +68,33 @@ const Sidebar = () => {
 };
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
+  const isDemo = localStorage.getItem('token')?.startsWith('demo-token-');
+  
   return (
     <div className="layout">
       <Sidebar />
       <main className="main-content">
+        {/* Demo Mode Indicator */}
+        {isDemo && (
+          <div style={{
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            background: 'linear-gradient(135deg, #f59e0b, #ef4444)',
+            color: 'white',
+            padding: '8px 16px',
+            borderRadius: '20px',
+            fontSize: '0.85rem',
+            fontWeight: '600',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+          }}>
+            🔥 Demo Mode
+          </div>
+        )}
         {children}
       </main>
     </div>

@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
-import { Plus, Trash2, Save, Send, Sparkles, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Save, Send, Sparkles, Loader2, LayoutTemplate, Eye, X } from 'lucide-react';
+import { MinimalistTemplate } from '../components/templates/MinimalistTemplate';
+import { ProfessionalTemplate } from '../components/templates/ProfessionalTemplate';
+import { CreativeTemplate } from '../components/templates/CreativeTemplate';
 
 interface LineItem {
   id?: number;
@@ -13,6 +16,8 @@ interface LineItem {
 interface Client {
   id: number;
   name: string;
+  email: string;
+  address: string;
 }
 
 export default function InvoiceEditor() {
@@ -31,6 +36,9 @@ export default function InvoiceEditor() {
     due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     items: [] as LineItem[]
   });
+
+  const [selectedTemplate, setSelectedTemplate] = useState<'minimalist' | 'professional' | 'creative'>('minimalist');
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     fetchClients();
@@ -138,6 +146,44 @@ export default function InvoiceEditor() {
           </button>
         </div>
       </div>
+
+      {showPreview && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 50, 
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px'
+        }}>
+          <div className="glass-card" style={{ width: '100%', maxWidth: '800px', height: '90vh', display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}>
+            <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3>Invoice Preview</h3>
+              <button onClick={() => setShowPreview(false)} className="btn-ghost" style={{ padding: '8px' }}>
+                <X size={20} />
+              </button>
+            </div>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '40px', background: '#f8fafc', display: 'flex', justifyContent: 'center' }}>
+              <div style={{ width: '100%', maxWidth: '700px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
+                {(() => {
+                  const client = clients.find(c => c.id === parseInt(formData.client_id));
+                  const data = {
+                    id: id || 'DRAFT',
+                    date: new Date().toLocaleDateString(),
+                    due_date: formData.due_date,
+                    items: formData.items,
+                    total: calculateTotal()
+                  };
+                   // Fallback client if not selected
+                  const mockClient = { name: 'Client Name', email: 'email@example.com', address: '123 Client St' };
+                  
+                  switch(selectedTemplate) {
+                    case 'minimalist': return <MinimalistTemplate data={data} client={client || mockClient} />;
+                    case 'professional': return <ProfessionalTemplate data={data} client={client || mockClient} />;
+                    case 'creative': return <CreativeTemplate data={data} client={client || mockClient} />;
+                  }
+                })()}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '24px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -271,13 +317,43 @@ export default function InvoiceEditor() {
           </div>
 
           <div className="glass-card">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+              <LayoutTemplate size={20} />
+              <h3>Template</h3>
+            </div>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <button 
+                  onClick={() => setSelectedTemplate('minimalist')}
+                  className={`btn-ghost ${selectedTemplate === 'minimalist' ? 'active' : ''}`}
+                  style={{ justifyContent: 'flex-start', border: selectedTemplate === 'minimalist' ? '1px solid var(--accent-color)' : '1px solid transparent' }}
+                >
+                  Minimalist
+                </button>
+                <button 
+                  onClick={() => setSelectedTemplate('professional')}
+                  className={`btn-ghost ${selectedTemplate === 'professional' ? 'active' : ''}`}
+                  style={{ justifyContent: 'flex-start', border: selectedTemplate === 'professional' ? '1px solid var(--accent-color)' : '1px solid transparent' }}
+                >
+                  Professional
+                </button>
+                <button 
+                  onClick={() => setSelectedTemplate('creative')}
+                  className={`btn-ghost ${selectedTemplate === 'creative' ? 'active' : ''}`}
+                  style={{ justifyContent: 'flex-start', border: selectedTemplate === 'creative' ? '1px solid var(--accent-color)' : '1px solid transparent' }}
+                >
+                  Creative
+                </button>
+             </div>
+          </div>
+
+          <div className="glass-card">
             <h3>Invoice Actions</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '20px' }}>
               <button className="btn-ghost" style={{ justifyContent: 'flex-start' }}>
                 <Send size={18} style={{ marginRight: '8px' }} /> Send to Client
               </button>
-              <button className="btn-ghost" style={{ justifyContent: 'flex-start' }}>
-                <FileText size={18} style={{ marginRight: '8px' }} /> Preview PDF
+              <button className="btn-ghost" style={{ justifyContent: 'flex-start' }} onClick={() => setShowPreview(true)}>
+                <Eye size={18} style={{ marginRight: '8px' }} /> Preview PDF
               </button>
             </div>
           </div>
@@ -287,4 +363,4 @@ export default function InvoiceEditor() {
   );
 }
 
-const FileText = ({ size, style }: any) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14.5 2 14.5 7.5 20 7.5"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>;
+

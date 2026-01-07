@@ -16,6 +16,16 @@ export default function Login() {
     setLoading(true);
     setError('');
     
+    // Demo user credentials
+    if (email === 'demo@billio.com' && password === 'demo123') {
+      const demoUser = { id: 1, email: 'demo@billio.com' };
+      const demoToken = 'demo-token-' + Date.now();
+      localStorage.setItem('token', demoToken);
+      localStorage.setItem('user', JSON.stringify(demoUser));
+      navigate('/dashboard');
+      return;
+    }
+    
     try {
       const res = await api.post('/auth/login', { email, password });
       localStorage.setItem('token', res.token);
@@ -77,6 +87,72 @@ export default function Login() {
             {loading ? <Loader2 className="animate-spin" /> : 'Sign In'}
           </button>
         </form>
+
+        {/* Demo Login Section */}
+        <div style={{ 
+          marginTop: '32px', 
+          padding: '20px', 
+          background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1))',
+          borderRadius: '12px',
+          border: '1px solid rgba(59, 130, 246, 0.2)'
+        }}>
+          <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+            <p style={{ color: '#60a5fa', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px' }}>
+              🔥 Quick Demo Access
+            </p>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+              Try all features without registration
+            </p>
+          </div>
+          
+          <div style={{ 
+            background: 'rgba(255, 255, 255, 0.05)', 
+            padding: '12px', 
+            borderRadius: '8px',
+            marginBottom: '16px',
+            fontSize: '0.85rem'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>Email:</span>
+              <span style={{ color: 'white', fontFamily: 'monospace' }}>demo@billio.com</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>Password:</span>
+              <span style={{ color: 'white', fontFamily: 'monospace' }}>demo123</span>
+            </div>
+          </div>
+          
+          <button
+            onClick={() => {
+              setEmail('demo@billio.com');
+              setPassword('demo123');
+              setTimeout(() => {
+                document.querySelector<HTMLButtonElement>('.btn-primary')?.click();
+              }, 100);
+            }}
+            style={{ 
+              width: '100%', 
+              padding: '10px', 
+              background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '8px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 10px 20px rgba(59, 130, 246, 0.3)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
+          >
+            Use Demo Account
+          </button>
+        </div>
 
         <p style={{ textAlign: 'center', marginTop: '24px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
           Don't have an account? <span onClick={() => navigate('/register')} style={{ color: 'var(--accent-color)', cursor: 'pointer' }}>Register <ArrowRight size={14} style={{ verticalAlign: 'middle' }} /></span>

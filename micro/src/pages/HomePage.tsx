@@ -6,6 +6,8 @@ import { Features } from '../components/home/Features';
 import { HowItWorks } from '../components/home/HowItWorks';
 import { Audience } from '../components/home/Audience';
 import { Pricing } from '../components/home/Pricing';
+import { Testimonials } from '../components/home/Testimonials';
+import { InteractiveDemo } from '../components/home/InteractiveDemo';
 import { FAQ } from '../components/home/FAQ';
 import { FinalCTA } from '../components/home/FinalCTA';
 import { Footer } from '../components/home/Footer';
@@ -21,8 +23,10 @@ export default function HomePage() {
         <Problem />
         <Features />
         <HowItWorks />
+        <InteractiveDemo />
         <Audience />
         <Pricing />
+        <Testimonials />
         <FAQ />
         <FinalCTA />
         <Footer />

@@ -304,6 +304,49 @@
   background: rgba(59, 130, 246, 0.05);
 }
 
+/* Enhanced animations and hover effects */
+.problem-item {
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.problem-item:hover {
+  transform: translateX(4px);
+  color: #e2e8f0;
+}
+
+/* Demo section animations */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.4);
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Testimonial enhancements */
+.testimonial-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.testimonial-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+/* Better button interactions */
+.btn-cta:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
+}
+
 /* Footer & CTA */
 .cta-section {
   padding: 160px 0;

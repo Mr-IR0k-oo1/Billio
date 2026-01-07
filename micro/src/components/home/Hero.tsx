@@ -22,25 +22,25 @@ export const Hero = () => (
         transition={{ duration: 0.6 }}
       >
         <span className="inline-block px-4 py-1.5 rounded-full bg-blue-500/10 text-blue-400 text-sm font-medium mb-6 border border-blue-500/20">
-          New: AI-Powered Invoicing
+          🎯 Trusted by 1,000+ freelancers
         </span>
         <h1 className="home-h1">
-          Create invoices in <br />
-          <span className="text-white">60 seconds.</span>
+          Stop wasting hours on <br />
+          <span className="text-white">admin work.</span>
         </h1>
         <p className="home-subtitle mb-10">
-          Billio writes professional invoice descriptions for you, so you can get paid faster without the admin work.
+          AI writes your invoice descriptions in seconds. Get paid 3x faster with professional invoices that practically write themselves.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Link to="/register" className="btn-cta flex items-center gap-2">
-            Create your first invoice <ArrowRight size={20} />
+            Start free trial <ArrowRight size={20} />
           </Link>
           <button className="btn-secondary flex items-center gap-2">
-            <PlayCircle size={20} /> See how it works
+            <PlayCircle size={20} /> Watch 2-min demo
           </button>
         </div>
         <p className="mt-6 text-sm text-gray-500">
-          No credit card required • Cancel anytime
+          ✨ 14-day free trial • No credit card required
         </p>
       </motion.div>
 
@@ -53,22 +53,49 @@ export const Hero = () => (
       >
         <div className="bg-[#0A0A0A] rounded-xl overflow-hidden aspect-[16/10] relative group border border-white/5">
            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
-              {/* Abstract UI representation */}
-              <div className="w-3/4 h-3/4 glass-panel rounded-lg border border-white/10 p-6 flex flex-col gap-4">
-                 <div className="h-8 w-1/3 bg-white/10 rounded"></div>
-                 <div className="h-4 w-1/4 bg-white/5 rounded"></div>
-                 <div className="mt-8 flex flex-col gap-3">
-                    <div className="h-12 w-full bg-white/5 rounded flex items-center px-4 justify-between">
-                       <div className="h-3 w-1/2 bg-white/10 rounded"></div>
-                       <div className="h-3 w-1/6 bg-white/10 rounded"></div>
-                    </div>
-                    <div className="h-12 w-full bg-white/5 rounded flex items-center px-4 justify-between">
-                       <div className="h-3 w-1/3 bg-white/10 rounded"></div>
-                       <div className="h-3 w-1/6 bg-white/10 rounded"></div>
+              {/* Enhanced UI representation with AI input */}
+              <div className="w-full h-full glass-panel border border-white/10 p-8 flex flex-col">
+                 {/* Header */}
+                 <div className="flex items-center justify-between mb-6">
+                    <div className="h-6 w-24 bg-white/10 rounded"></div>
+                    <div className="flex gap-2">
+                      <div className="h-6 w-6 bg-white/5 rounded"></div>
+                      <div className="h-6 w-6 bg-white/5 rounded"></div>
                     </div>
                  </div>
-                 <div className="mt-auto flex justify-end">
-                    <div className="h-10 w-32 bg-blue-500 rounded-lg shadow-lg shadow-blue-500/20"></div>
+                 
+                 {/* AI Input Section */}
+                 <div className="mb-6">
+                    <div className="h-4 w-32 bg-blue-500/20 rounded mb-3"></div>
+                    <div className="h-12 w-full bg-white/5 rounded-lg border border-blue-500/20 flex items-center px-4">
+                      <div className="h-3 w-3/4 bg-white/10 rounded"></div>
+                      <div className="ml-auto h-6 w-16 bg-blue-500 rounded"></div>
+                    </div>
+                 </div>
+                 
+                 {/* Generated Items */}
+                 <div className="flex-1 flex flex-col gap-3">
+                    <div className="h-3 w-2/3 bg-green-500/20 rounded"></div>
+                    <div className="space-y-2">
+                      <div className="h-10 w-full bg-white/5 rounded flex items-center px-3 justify-between">
+                        <div className="h-2.5 w-1/3 bg-white/10 rounded"></div>
+                        <div className="h-2.5 w-16 bg-white/10 rounded"></div>
+                      </div>
+                      <div className="h-10 w-full bg-white/5 rounded flex items-center px-3 justify-between">
+                        <div className="h-2.5 w-2/5 bg-white/10 rounded"></div>
+                        <div className="h-2.5 w-20 bg-white/10 rounded"></div>
+                      </div>
+                      <div className="h-10 w-full bg-white/5 rounded flex items-center px-3 justify-between">
+                        <div className="h-2.5 w-1/2 bg-white/10 rounded"></div>
+                        <div className="h-2.5 w-14 bg-white/10 rounded"></div>
+                      </div>
+                    </div>
+                 </div>
+                 
+                 {/* Action Buttons */}
+                 <div className="flex justify-between items-center mt-6 pt-4 border-t border-white/5">
+                    <div className="h-10 w-28 bg-white/5 rounded-lg"></div>
+                    <div className="h-10 w-24 bg-blue-500 rounded-lg shadow-lg shadow-blue-500/20"></div>
                  </div>
               </div>
            </div>
