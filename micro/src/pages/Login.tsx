@@ -81,6 +81,14 @@ export default function Login() {
                 required
               />
             </div>
+            <div style={{ textAlign: 'right', marginTop: '8px' }}>
+              <span 
+                onClick={() => navigate('/forgot-password')}
+                style={{ fontSize: '0.85rem', color: 'var(--accent-color)', cursor: 'pointer' }}
+              >
+                Forgot Password?
+              </span>
+            </div>
           </div>
 
           <button className="btn-primary" style={{ width: '100%', marginTop: '12px', padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} disabled={loading}>

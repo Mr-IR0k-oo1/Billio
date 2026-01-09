@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
@@ -39,8 +40,8 @@ app.use('/api/estimates', estimatesRouter);
 app.use('/api/recurring', recurringRouter);
 app.use('/api/reports', reportsRouter);
 
-// Basic Route
-app.get('/', (req, res) => {
+// Basic Route for API Health
+app.get('/api/health', (req, res) => {
   res.send('Billio Invoicing API v2.0 is running');
 });
 
@@ -436,6 +437,14 @@ app.post('/api/ai/describe-line-items', auth, async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
+});
+
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, '../micro/dist')));
+
+// SPA Catch-all handler
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../micro/dist/index.html'));
 });
 
 app.listen(port, () => {

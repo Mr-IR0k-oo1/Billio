@@ -15,6 +15,8 @@ import Reports from './pages/Reports';
 import Estimates from './pages/Estimates';
 import RecurringInvoices from './pages/RecurringInvoices';
 import RecurringInvoiceEditor from './pages/RecurringInvoiceEditor';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const token = localStorage.getItem('token');
@@ -39,6 +41,18 @@ export function App() {
         <Route path="/login" element={
           <PublicRoute>
             <Login />
+          </PublicRoute>
+        } />
+
+        <Route path="/forgot-password" element={
+          <PublicRoute>
+            <ForgotPassword />
+          </PublicRoute>
+        } />
+
+        <Route path="/reset-password" element={
+          <PublicRoute>
+            <ResetPassword />
           </PublicRoute>
         } />
 

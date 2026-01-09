@@ -1,4 +1,5 @@
 import { useRef, useMemo } from 'react';
+import React from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, MeshDistortMaterial, Sphere } from '@react-three/drei';
 import * as THREE from 'three';
@@ -65,6 +66,35 @@ function FloatingNodes() {
 }
 
 export const ThreeBackground = () => {
+  const [webglSupported, setWebglSupported] = React.useState(true);
+
+  React.useEffect(() => {
+    try {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      if (!gl) {
+        setWebglSupported(false);
+      }
+    } catch (e) {
+      setWebglSupported(false);
+    }
+  }, []);
+
+  if (!webglSupported) {
+    return (
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: 0,
+        pointerEvents: 'none',
+        background: 'linear-gradient(135deg, #0f172a 0%, #020617 100%)',
+      }} />
+    );
+  }
+
   return (
     <div style={{
       position: 'absolute',
