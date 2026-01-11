@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, Variants } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import React from 'react';
 
 type PresetType = 'blur' | 'shake' | 'scale' | 'fade' | 'slide' | 'fade-in-blur';
@@ -110,9 +110,9 @@ const AnimationComponent: React.FC<TextEffectProps> = ({
   const containerVariants = {
     ...selectedVariants.container,
     visible: {
-        ...selectedVariants.container?.visible,
+        ...(selectedVariants.container?.visible as any),
         transition: {
-            ...selectedVariants.container?.visible?.transition,
+            ...(selectedVariants.container?.visible as any)?.transition,
             staggerChildren: speedSegment,
             delayChildren: delay,
         }

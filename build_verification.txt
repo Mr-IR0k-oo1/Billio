@@ -1,0 +1,8 @@
+
+> billio@0.0.0 build
+> tsc -b && vite build
+
+src/components/motion-primitives/text-effect.tsx(3,18): error TS1484: 'Variants' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/components/motion-primitives/text-effect.tsx(11,14): error TS2503: Cannot find namespace 'JSX'.
+src/components/motion-primitives/text-effect.tsx(115,53): error TS2339: Property 'transition' does not exist on type 'Variant'.
+  Property 'transition' does not exist on type 'TargetResolver'.

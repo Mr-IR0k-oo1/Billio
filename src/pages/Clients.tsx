@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../lib/api';
-import { Plus, Trash2, Edit2, Phone } from 'lucide-react';
+import { Trash2, Edit2, Phone, Mail, MapPin, Search, UserPlus, X, CreditCard, FileText, Clock } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface Client {
@@ -19,6 +19,7 @@ export default function Clients() {
   const [clients, setClients] = useState<Client[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<any>(null);
+  const [search, setSearch] = useState('');
   const [formData, setFormData] = useState({ 
     name: '', 
     email: '', 
@@ -110,62 +111,105 @@ export default function Clients() {
     setIsModalOpen(true);
   };
 
+  const filteredClients = clients.filter(c => 
+    c.name.toLowerCase().includes(search.toLowerCase()) || 
+    c.email.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div>
+    <div className="max-w-6xl mx-auto">
       <div className="page-header">
-        <h1>Clients</h1>
-        <button className="btn-primary" onClick={openAddModal} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Plus size={18} /> Add Client
+        <div>
+          <h1>Clients</h1>
+          <p className="text-muted-foreground text-sm mt-1">Directory of your partners and customers</p>
+        </div>
+        <button className="btn-cta flex items-center gap-2" onClick={openAddModal}>
+          <UserPlus size={18} /> Add Client
         </button>
       </div>
 
-      <div className="glass-card">
-        <div className="table-container">
+      <div className="mb-8 relative">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+        <input 
+          type="text" 
+          placeholder="Search by name or email..." 
+          className="pl-12 w-full max-w-md"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      <div className="glass-card p-0 overflow-hidden">
+        <div className="table-container m-0">
           <table>
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
+                <th className="pl-8">Client Name</th>
+                <th>Contact info</th>
                 <th>Payment Terms</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th className="pr-8 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {clients.length === 0 ? (
+              {filteredClients.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
-                    No clients yet. Add your first client to get started.
+                  <td colSpan={5}>
+                    <div className="empty-state">
+                      <div className="empty-state-icon">
+                        <CreditCard size={32} />
+                      </div>
+                      <p className="text-lg font-bold text-white">No clients found</p>
+                      <p className="text-sm max-w-xs mx-auto mb-6">Start growing your network by adding your first client relationship.</p>
+                      <button className="btn-secondary" onClick={openAddModal}>Add Your First Client</button>
+                    </div>
                   </td>
                 </tr>
               ) : (
-                clients.map((client) => (
-                  <tr key={client.id}>
-                    <td style={{ fontWeight: 600 }}>{client.name}</td>
-                    <td>{client.email}</td>
-                    <td>
-                      {client.phone ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <Phone size={14} className="text-muted" />
-                          {client.phone}
+                filteredClients.map((client) => (
+                  <tr key={client.id} className="group hover:bg-white/[0.01]">
+                    <td className="pl-8">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500/20 to-violet-500/20 border border-white/5 flex items-center justify-center font-bold text-blue-400">
+                          {client.name.charAt(0).toUpperCase()}
                         </div>
-                      ) : (
-                        <span style={{ color: 'var(--text-secondary)' }}>—</span>
-                      )}
+                        <div>
+                          <p className="font-bold text-white">{client.name}</p>
+                          <p className="text-xs text-muted-foreground flex items-center gap-1">
+                            <MapPin size={10} /> {client.address?.split(',')[0] || 'Remote'}
+                          </p>
+                        </div>
+                      </div>
                     </td>
-                    <td>{client.payment_terms || 30} days</td>
                     <td>
-                      <span className={`badge badge-${client.status === 'active' ? 'paid' : 'draft'}`}>
+                      <div className="space-y-1">
+                        <p className="text-sm flex items-center gap-2 hover:text-blue-400 transition-colors">
+                          <Mail size={12} className="text-muted-foreground" /> {client.email}
+                        </p>
+                        {client.phone && (
+                          <p className="text-xs text-muted-foreground flex items-center gap-2">
+                            <Phone size={12} /> {client.phone}
+                          </p>
+                        )}
+                      </div>
+                    </td>
+                    <td>
+                      <div className="flex items-center gap-2">
+                        <Clock size={14} className="text-muted-foreground" />
+                        <span className="text-sm font-medium">{client.payment_terms || 30} Days</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span className={`badge badge-${client.status === 'active' ? 'paid' : 'draft'} uppercase text-[10px] tracking-widest`}>
                         {client.status || 'active'}
                       </span>
                     </td>
-                    <td>
-                      <div style={{ display: 'flex', gap: '12px' }}>
-                        <button onClick={() => openEditModal(client)} style={{ color: 'var(--accent-color)', background: 'none', cursor: 'pointer', border: 'none' }}>
+                    <td className="pr-8">
+                      <div className="flex justify-end gap-2">
+                        <button onClick={() => openEditModal(client)} className="p-2 text-muted-foreground hover:text-blue-400 hover:bg-blue-400/10 rounded-lg transition-all" title="Edit Client">
                           <Edit2 size={16} />
                         </button>
-                        <button onClick={() => handleDelete(client.id)} style={{ color: 'var(--error-color)', background: 'none', cursor: 'pointer', border: 'none' }}>
+                        <button onClick={() => handleDelete(client.id)} className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all" title="Delete Client">
                           <Trash2 size={16} />
                         </button>
                       </div>
@@ -180,23 +224,37 @@ export default function Clients() {
 
       {isModalOpen && (
         <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
-          <div className="glass-card modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px', maxHeight: '90vh', overflow: 'auto' }}>
-            <h2>{editingClient ? 'Edit Client' : 'Add Client'}</h2>
-            <form onSubmit={handleSubmit} style={{ marginTop: '20px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div className="glass-card modal-content" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <h2 className="text-2xl font-bold">{editingClient ? 'Edit' : 'New'} Client</h2>
+                <p className="text-sm text-muted-foreground mt-1">Configure client details for invoicing</p>
+              </div>
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="form-row">
                 <div className="form-group">
-                  <label>Name *</label>
+                  <label>Full Name *</label>
                   <input 
                     type="text" 
+                    placeholder="e.g. Acme Corp"
                     value={formData.name} 
                     onChange={e => setFormData({ ...formData, name: e.target.value })}
                     required 
                   />
                 </div>
                 <div className="form-group">
-                  <label>Email *</label>
+                  <label>Email Address *</label>
                   <input 
                     type="email" 
+                    placeholder="billing@acme.com"
                     value={formData.email} 
                     onChange={e => setFormData({ ...formData, email: e.target.value })}
                     required 
@@ -204,36 +262,45 @@ export default function Clients() {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="form-row">
                 <div className="form-group">
-                  <label>Phone</label>
+                  <label>Phone Number</label>
                   <input 
                     type="tel" 
+                    placeholder="+1 (555) 000-0000"
                     value={formData.phone} 
                     onChange={e => setFormData({ ...formData, phone: e.target.value })}
                   />
                 </div>
                 <div className="form-group">
-                  <label>Tax ID</label>
+                  <label>Tax ID / VAT</label>
                   <input 
                     type="text" 
+                    placeholder="Optional"
                     value={formData.tax_id} 
                     onChange={e => setFormData({ ...formData, tax_id: e.target.value })}
                   />
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="form-row">
                 <div className="form-group">
-                  <label>Payment Terms (days)</label>
-                  <input 
-                    type="number" 
-                    value={formData.payment_terms} 
-                    onChange={e => setFormData({ ...formData, payment_terms: parseInt(e.target.value) })}
-                  />
+                  <label>Payment Terms</label>
+                  <div className="relative">
+                    <select 
+                      value={formData.payment_terms} 
+                      onChange={e => setFormData({ ...formData, payment_terms: parseInt(e.target.value) })}
+                    >
+                      <option value={7}>Net 7</option>
+                      <option value={15}>Net 15</option>
+                      <option value={30}>Net 30</option>
+                      <option value={60}>Net 60</option>
+                      <option value={90}>Net 90</option>
+                    </select>
+                  </div>
                 </div>
                 <div className="form-group">
-                  <label>Status</label>
+                  <label>Relationship Status</label>
                   <select 
                     value={formData.status} 
                     onChange={e => setFormData({ ...formData, status: e.target.value as 'active' | 'inactive' })}
@@ -245,8 +312,9 @@ export default function Clients() {
               </div>
 
               <div className="form-group">
-                <label>Address</label>
+                <label>Billing Address</label>
                 <textarea 
+                  placeholder="Street, City, State, ZIP"
                   value={formData.address} 
                   onChange={e => setFormData({ ...formData, address: e.target.value })}
                   rows={2}
@@ -254,18 +322,22 @@ export default function Clients() {
               </div>
 
               <div className="form-group">
-                <label>Notes</label>
+                <label className="flex items-center gap-2">
+                  <FileText size={14} className="text-blue-400" /> Private Notes
+                </label>
                 <textarea 
                   value={formData.notes} 
                   onChange={e => setFormData({ ...formData, notes: e.target.value })}
                   rows={3}
-                  placeholder="Internal notes about this client..."
+                  placeholder="Internal notes about this client (not visible to them)..."
                 />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}>
-                <button type="button" className="btn-ghost" onClick={() => setIsModalOpen(false)}>Cancel</button>
-                <button type="submit" className="btn-primary">Save Client</button>
+              <div className="flex justify-end gap-3 pt-4">
+                <button type="button" className="btn-secondary px-6" onClick={() => setIsModalOpen(false)}>Cancel</button>
+                <button type="submit" className="btn-cta px-8 py-2.5">
+                  {editingClient ? 'Update Details' : 'Register Client'}
+                </button>
               </div>
             </form>
           </div>

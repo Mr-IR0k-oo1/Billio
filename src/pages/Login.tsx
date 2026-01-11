@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Mail, Lock, Loader2, ArrowRight, Sparkles } from 'lucide-react';
 import { api } from '../lib/api';
-
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -30,7 +29,7 @@ export default function Login() {
       const res = await api.post('/auth/login', { email, password });
       localStorage.setItem('token', res.token);
       localStorage.setItem('user', JSON.stringify(res.user));
-      navigate('/');
+      navigate('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Login failed. Please check your credentials.');
     } finally {
@@ -39,28 +38,35 @@ export default function Login() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle at top right, #3b82f611, transparent), radial-gradient(circle at bottom left, #7c3aed11, transparent)' }}>
-      <div className="glass-card" style={{ width: '100%', maxWidth: '400px', padding: '40px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <h1 style={{ color: 'var(--accent-color)', fontSize: '2.5rem', marginBottom: '8px' }}>Billio</h1>
-          <p style={{ color: 'var(--text-secondary)' }}>Welcome back, sign in to continue</p>
+    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-background">
+      {/* Background Orbs */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/10 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/10 blur-[120px] rounded-full translate-y-1/2 -translate-x-1/2" />
+
+      <div className="glass-card w-full max-w-[440px] p-10 relative z-10">
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 mb-4">
+            <Sparkles className="text-blue-500" size={24} />
+          </div>
+          <h1 className="text-4xl font-bold mb-2 premium-gradient-text">Billio</h1>
+          <p className="text-muted-foreground">Welcome back, sign in to continue</p>
         </div>
 
         {error && (
-          <div style={{ padding: '12px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--error-color)', borderRadius: '8px', marginBottom: '20px', fontSize: '0.9rem', textAlign: 'center' }}>
+          <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-xl mb-6 text-sm text-center">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleLogin} className="space-y-6">
           <div className="form-group">
             <label>Email Address</label>
-            <div style={{ position: 'relative' }}>
-              <Mail size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
               <input 
                 type="email" 
                 placeholder="you@example.com"
-                style={{ width: '100%', paddingLeft: '40px' }}
+                className="pl-12"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
@@ -69,64 +75,49 @@ export default function Login() {
           </div>
 
           <div className="form-group">
-            <label>Password</label>
-            <div style={{ position: 'relative' }}>
-              <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+            <div className="flex items-center justify-between mb-2">
+              <label className="mb-0">Password</label>
+              <Link to="/forgot-password" title="Forgot Password" className="text-xs text-blue-400 hover:text-blue-300 transition-colors">
+                Forgot Password?
+              </Link>
+            </div>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
               <input 
                 type="password" 
                 placeholder="••••••••"
-                style={{ width: '100%', paddingLeft: '40px' }}
+                className="pl-12"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
               />
             </div>
-            <div style={{ textAlign: 'right', marginTop: '8px' }}>
-              <span 
-                onClick={() => navigate('/forgot-password')}
-                style={{ fontSize: '0.85rem', color: 'var(--accent-color)', cursor: 'pointer' }}
-              >
-                Forgot Password?
-              </span>
-            </div>
           </div>
 
-          <button className="btn-primary" style={{ width: '100%', marginTop: '12px', padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} disabled={loading}>
-            {loading ? <Loader2 className="animate-spin" /> : 'Sign In'}
+          <button className="btn-cta w-full" disabled={loading}>
+            {loading ? <Loader2 className="animate-spin mx-auto" /> : 'Sign In'}
           </button>
         </form>
 
         {/* Demo Login Section */}
-        <div style={{ 
-          marginTop: '32px', 
-          padding: '20px', 
-          background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1))',
-          borderRadius: '12px',
-          border: '1px solid rgba(59, 130, 246, 0.2)'
-        }}>
-          <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-            <p style={{ color: '#60a5fa', fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px' }}>
-              🔥 Quick Demo Access
+        <div className="mt-8 p-6 rounded-2xl bg-white/[0.03] border border-white/5 relative group transition-all duration-300 hover:bg-white/[0.05]">
+          <div className="text-center mb-4">
+            <p className="text-blue-400 text-sm font-semibold mb-1 flex items-center justify-center gap-2">
+              <Sparkles size={14} /> Quick Demo Access
             </p>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+            <p className="text-muted-foreground text-xs">
               Try all features without registration
             </p>
           </div>
           
-          <div style={{ 
-            background: 'rgba(255, 255, 255, 0.05)', 
-            padding: '12px', 
-            borderRadius: '8px',
-            marginBottom: '16px',
-            fontSize: '0.85rem'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>Email:</span>
-              <span style={{ color: 'white', fontFamily: 'monospace' }}>demo@billio.com</span>
+          <div className="bg-black/20 p-4 rounded-xl mb-4 text-xs font-mono space-y-2">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground italic">Email:</span>
+              <span className="text-white">demo@billio.com</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>Password:</span>
-              <span style={{ color: 'white', fontFamily: 'monospace' }}>demo123</span>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground italic">Pass:</span>
+              <span className="text-white">demo123</span>
             </div>
           </div>
           
@@ -134,36 +125,21 @@ export default function Login() {
             onClick={() => {
               setEmail('demo@billio.com');
               setPassword('demo123');
-              setTimeout(() => {
-                document.querySelector<HTMLButtonElement>('.btn-primary')?.click();
-              }, 100);
+              // Trigger login immediately
+              const demoUser = { id: 1, email: 'demo@billio.com' };
+              const demoToken = 'demo-token-' + Date.now();
+              localStorage.setItem('token', demoToken);
+              localStorage.setItem('user', JSON.stringify(demoUser));
+              navigate('/dashboard');
             }}
-            style={{ 
-              width: '100%', 
-              padding: '10px', 
-              background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '8px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 10px 20px rgba(59, 130, 246, 0.3)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
+            className="w-full btn-secondary text-sm py-2"
           >
             Use Demo Account
           </button>
         </div>
 
-        <p style={{ textAlign: 'center', marginTop: '24px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-          Don't have an account? <span onClick={() => navigate('/register')} style={{ color: 'var(--accent-color)', cursor: 'pointer' }}>Register <ArrowRight size={14} style={{ verticalAlign: 'middle' }} /></span>
+        <p className="text-center mt-8 text-sm text-muted-foreground">
+          Don't have an account? <Link to="/register" className="text-blue-400 hover:text-blue-300 transition-colors font-medium">Register <ArrowRight className="inline-block" size={14} /></Link>
         </p>
       </div>
     </div>

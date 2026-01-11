@@ -28,8 +28,8 @@ export const HeroHeader = () => {
             <nav
                 data-state={menuState && 'active'}
                 className="fixed z-20 w-full px-2">
-                <div className={cn('mx-auto mt-2 max-w-6xl px-6 transition-all duration-300 lg:px-12', isScrolled && 'bg-background/50 max-w-4xl rounded-2xl border backdrop-blur-lg lg:px-5')}>
-                    <div className="relative flex flex-wrap items-center justify-between gap-6 py-3 lg:gap-0 lg:py-4">
+                <div className={cn('mx-auto mt-4 max-w-6xl px-6 transition-all duration-500 lg:px-12', isScrolled && 'bg-background/40 max-w-2xl rounded-2xl border border-white/5 backdrop-blur-xl lg:px-6 shadow-2xl shadow-black/20 ring-1 ring-white/5')}>
+                    <div className="relative flex flex-wrap items-center justify-between gap-6 py-2.5 lg:gap-0 lg:py-3">
                         <div className="flex w-full justify-between lg:w-auto">
                             <Link
                                 to="/"

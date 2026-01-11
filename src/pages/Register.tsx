@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, Loader2, UserPlus, ArrowRight } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Mail, Lock, Loader2, UserPlus, ArrowRight, Sparkles } from 'lucide-react';
 import { api } from '../lib/api';
-
 
 export default function Register() {
   const [email, setEmail] = useState('');
@@ -25,7 +24,7 @@ export default function Register() {
       const res = await api.post('/auth/register', { email, password });
       localStorage.setItem('token', res.token);
       localStorage.setItem('user', JSON.stringify(res.user));
-      navigate('/');
+      navigate('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Registration failed');
     } finally {
@@ -34,28 +33,35 @@ export default function Register() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle at top right, #3b82f611, transparent), radial-gradient(circle at bottom left, #7c3aed11, transparent)' }}>
-      <div className="glass-card" style={{ width: '100%', maxWidth: '400px', padding: '40px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <h1 style={{ color: 'var(--accent-color)', fontSize: '2.5rem', marginBottom: '8px' }}>Billio</h1>
-          <p style={{ color: 'var(--text-secondary)' }}>Create an account to start invoicing</p>
+    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-background">
+      {/* Background Orbs */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/10 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/10 blur-[120px] rounded-full translate-y-1/2 -translate-x-1/2" />
+
+      <div className="glass-card w-full max-w-[440px] p-10 relative z-10">
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 mb-4">
+            <UserPlus className="text-blue-500" size={24} />
+          </div>
+          <h1 className="text-4xl font-bold mb-2 premium-gradient-text">Billio</h1>
+          <p className="text-muted-foreground">Create an account to start invoicing</p>
         </div>
 
         {error && (
-          <div style={{ padding: '12px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--error-color)', borderRadius: '8px', marginBottom: '20px', fontSize: '0.9rem', textAlign: 'center' }}>
+          <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-xl mb-6 text-sm text-center">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleRegister}>
+        <form onSubmit={handleRegister} className="space-y-6">
           <div className="form-group">
             <label>Email Address</label>
-            <div style={{ position: 'relative' }}>
-              <Mail size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
               <input 
                 type="email" 
                 placeholder="you@example.com"
-                style={{ width: '100%', paddingLeft: '40px' }}
+                className="pl-12"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
@@ -65,12 +71,12 @@ export default function Register() {
 
           <div className="form-group">
             <label>Password</label>
-            <div style={{ position: 'relative' }}>
-              <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
               <input 
                 type="password" 
                 placeholder="••••••••"
-                style={{ width: '100%', paddingLeft: '40px' }}
+                className="pl-12"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
@@ -80,12 +86,12 @@ export default function Register() {
 
           <div className="form-group">
             <label>Confirm Password</label>
-            <div style={{ position: 'relative' }}>
-              <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
               <input 
                 type="password" 
                 placeholder="••••••••"
-                style={{ width: '100%', paddingLeft: '40px' }}
+                className="pl-12"
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
                 required
@@ -93,7 +99,7 @@ export default function Register() {
             </div>
           </div>
 
-          <button className="btn-primary" style={{ width: '100%', marginTop: '12px', padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} disabled={loading}>
+          <button className="btn-cta w-full flex items-center justify-center gap-2" disabled={loading}>
             {loading ? <Loader2 className="animate-spin" /> : (
               <>
                 <UserPlus size={18} />
@@ -103,33 +109,17 @@ export default function Register() {
           </button>
         </form>
 
-        {/* Demo Access Link */}
-        <div style={{ 
-          marginTop: '20px', 
-          padding: '12px', 
-          background: 'rgba(59, 130, 246, 0.1)', 
-          borderRadius: '8px', 
-          textAlign: 'center',
-          fontSize: '0.85rem'
-        }}>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: '8px' }}>
+        <div className="mt-8 p-6 rounded-2xl bg-blue-500/[0.03] border border-blue-500/10 text-center">
+          <p className="text-muted-foreground text-xs mb-3">
             Want to try before you sign up?
           </p>
-          <span 
-            onClick={() => navigate('/login')} 
-            style={{ 
-              color: '#60a5fa', 
-              cursor: 'pointer', 
-              fontWeight: '600',
-              textDecoration: 'underline'
-            }}
-          >
-            Use Demo Account →
-          </span>
+          <Link to="/login" className="text-blue-400 hover:text-blue-300 transition-colors font-semibold text-sm flex items-center justify-center gap-2">
+            <Sparkles size={14} /> Use Demo Account <ArrowRight size={14} />
+          </Link>
         </div>
 
-        <p style={{ textAlign: 'center', marginTop: '16px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-          Already have an account? <span onClick={() => navigate('/login')} style={{ color: 'var(--accent-color)', cursor: 'pointer' }}>Sign In <ArrowRight size={14} style={{ verticalAlign: 'middle' }} /></span>
+        <p className="text-center mt-8 text-sm text-muted-foreground">
+          Already have an account? <Link to="/login" className="text-blue-400 hover:text-blue-300 transition-colors font-medium">Sign In <ArrowRight className="inline-block" size={14} /></Link>
         </p>
       </div>
     </div>

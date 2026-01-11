@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../lib/api';
-import { Plus, Users, FileText, TrendingUp } from 'lucide-react';
+import { Plus, Users, FileText, TrendingUp, ArrowUpRight, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface Invoice {
@@ -43,70 +43,105 @@ export default function Dashboard() {
   return (
     <div>
       <div className="page-header">
-        <h1>Dashboard</h1>
-        <Link to="/invoices/new" className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+        <div>
+          <h1>Dashboard</h1>
+          <p className="text-muted-foreground text-sm mt-1">Monitor your business performance and invoices</p>
+        </div>
+        <Link to="/invoices/new" className="btn-cta text-sm flex items-center gap-2 no-underline py-2">
           <Plus size={18} />
-          Create Invoice
+          <span>New Invoice</span>
         </Link>
       </div>
 
       <div className="stats-grid">
-        <div className="glass-card">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
-            <FileText size={20} />
-            <span>Total Invoices</span>
+        <div className="glass-card group hover:border-blue-500/30 transition-all duration-500">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
+              <FileText size={24} />
+            </div>
+            <span className="text-[10px] font-bold text-blue-400 bg-blue-400/10 px-2 py-0.5 rounded-full uppercase tracking-wider">Total</span>
           </div>
-          <h2 style={{ fontSize: '2rem' }}>{stats.totalInvoices}</h2>
+          <p className="text-muted-foreground text-sm font-medium">Total Invoices</p>
+          <div className="flex items-baseline gap-2 mt-1">
+            <h2 className="text-3xl font-bold">{stats.totalInvoices}</h2>
+            <span className="text-green-500 text-xs font-bold">+12%</span>
+          </div>
         </div>
-        <div className="glass-card">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
-            <Users size={20} />
-            <span>Active Clients</span>
+
+        <div className="glass-card group hover:border-violet-500/30 transition-all duration-500">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-500">
+              <Users size={24} />
+            </div>
+            <span className="text-[10px] font-bold text-violet-400 bg-violet-400/10 px-2 py-0.5 rounded-full uppercase tracking-wider">Active</span>
           </div>
-          <h2 style={{ fontSize: '2rem' }}>{stats.totalClients}</h2>
+          <p className="text-muted-foreground text-sm font-medium">Total Clients</p>
+          <div className="flex items-baseline gap-2 mt-1">
+            <h2 className="text-3xl font-bold">{stats.totalClients}</h2>
+            <span className="text-green-500 text-xs font-bold">+4%</span>
+          </div>
         </div>
-        <div className="glass-card">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
-            <TrendingUp size={20} />
-            <span>Total Revenue</span>
+
+        <div className="glass-card group hover:border-emerald-500/30 transition-all duration-500">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
+              <TrendingUp size={24} />
+            </div>
+            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full uppercase tracking-wider">Revenue</span>
           </div>
-          <h2 style={{ fontSize: '2rem', color: 'var(--success-color)' }}>${stats.revenue.toFixed(2)}</h2>
+          <p className="text-muted-foreground text-sm font-medium">Total Revenue</p>
+          <div className="flex items-baseline gap-2 mt-1">
+            <h2 className="text-3xl font-bold text-white">${stats.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h2>
+            <ArrowUpRight className="text-green-500" size={16} />
+          </div>
         </div>
       </div>
 
-      <div className="glass-card">
-        <h3>Recent Invoices</h3>
-        <div className="table-container">
+      <div className="glass-card p-0 overflow-hidden">
+        <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
+          <h3 className="text-lg font-bold">Recent Invoices</h3>
+          <Link to="/invoices" className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors">View All</Link>
+        </div>
+        <div className="table-container m-0">
           <table>
             <thead>
               <tr>
-                <th>Client</th>
+                <th className="pl-8">Client</th>
                 <th>Status</th>
                 <th>Due Date</th>
                 <th>Amount</th>
-                <th>Action</th>
+                <th className="pr-8 text-right">Action</th>
               </tr>
             </thead>
             <tbody>
               {stats.recentInvoices.map((invoice) => (
-                <tr key={invoice.id}>
-                  <td>{invoice.client_name}</td>
+                <tr key={invoice.id} className="group hover:bg-white/[0.02]">
+                  <td className="pl-8 font-medium">{invoice.client_name}</td>
                   <td>
-                    <span className={`badge badge-${invoice.status}`}>
+                    <span className={`badge badge-${invoice.status} flex items-center gap-1.5 w-fit`}>
+                      {invoice.status === 'paid' && <CheckCircle2 size={12} />}
+                      {invoice.status === 'sent' && <Clock size={12} />}
+                      {invoice.status === 'overdue' && <AlertCircle size={12} />}
                       {invoice.status}
                     </span>
                   </td>
-                  <td>{new Date(invoice.due_date).toLocaleDateString()}</td>
-                  <td>${parseFloat(invoice.total.toString()).toFixed(2)}</td>
-                  <td>
-                    <Link to={`/invoices/${invoice.id}`} style={{ color: 'var(--accent-color)', textDecoration: 'none' }}>Edit</Link>
+                  <td className="text-muted-foreground">{new Date(invoice.due_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                  <td className="font-bold text-white">${parseFloat(invoice.total.toString()).toFixed(2)}</td>
+                  <td className="pr-8 text-right">
+                    <Link to={`/invoices/${invoice.id}`} className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-muted-foreground hover:text-white hover:bg-white/10 transition-all">
+                      <ArrowUpRight size={18} />
+                    </Link>
                   </td>
                 </tr>
               ))}
               {stats.recentInvoices.length === 0 && (
                 <tr>
-                  <td colSpan={5} style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '40px' }}>
-                    No invoices yet. Create your first one!
+                  <td colSpan={5} className="text-center text-muted-foreground py-16">
+                    <div className="flex flex-col items-center gap-2">
+                      <FileText size={32} className="opacity-20" />
+                      <p>No invoices yet. Create your first one!</p>
+                      <Link to="/invoices/new" className="text-blue-400 hover:underline text-sm font-medium mt-2">Get Started</Link>
+                    </div>
                   </td>
                 </tr>
               )}

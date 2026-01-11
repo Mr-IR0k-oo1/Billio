@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
-import { Plus, Trash2, Save, Send, Sparkles, Loader2, LayoutTemplate, Eye, X } from 'lucide-react';
+import { Plus, Trash2, Save, Send, Sparkles, Loader2, LayoutTemplate, Eye, X, Calendar, User, FileText, Briefcase, CheckCircle2 } from 'lucide-react';
 import { MinimalistTemplate } from '../components/templates/MinimalistTemplate';
 import { ProfessionalTemplate } from '../components/templates/ProfessionalTemplate';
 import { CreativeTemplate } from '../components/templates/CreativeTemplate';
@@ -153,12 +153,15 @@ export default function InvoiceEditor({ isEstimate = false }: { isEstimate?: boo
   };
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+    <div className="max-w-6xl mx-auto">
       <div className="page-header">
-        <h1>{isEdit ? `Edit ${typeLabel} #${id}` : `Create New ${typeLabel}`}</h1>
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <button className="btn-ghost" onClick={() => navigate(isEstimate ? '/estimates' : '/invoices')}>Cancel</button>
-          <button className="btn-primary" onClick={handleSave} disabled={loading} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div>
+          <h1>{isEdit ? `Edit ${typeLabel} #${id}` : `Create New ${typeLabel}`}</h1>
+          <p className="text-muted-foreground text-sm mt-1">Design and customize your professional {typeLabel.toLowerCase()}</p>
+        </div>
+        <div className="flex gap-3">
+          <button className="btn-secondary px-6" onClick={() => navigate(isEstimate ? '/estimates' : '/invoices')}>Cancel</button>
+          <button className="btn-cta flex items-center gap-2" onClick={handleSave} disabled={loading}>
             {loading ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
             Save {typeLabel}
           </button>
@@ -166,19 +169,22 @@ export default function InvoiceEditor({ isEstimate = false }: { isEstimate?: boo
       </div>
 
       {showPreview && (
-        <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 50, 
-          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px'
-        }}>
-          <div className="glass-card" style={{ width: '100%', maxWidth: '800px', height: '90vh', display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}>
-            <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3>Invoice Preview</h3>
-              <button onClick={() => setShowPreview(false)} className="btn-ghost" style={{ padding: '8px' }}>
-                <X size={20} />
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-6 md:p-12 animate-in fade-in duration-300">
+          <div className="glass-card w-full max-w-5xl h-full flex flex-col p-0 overflow-hidden shadow-2xl border-white/10">
+            <div className="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+              <div className="flex items-center gap-2">
+                <Eye size={20} className="text-blue-400" />
+                <h3 className="font-bold">{typeLabel} Preview</h3>
+              </div>
+              <button 
+                onClick={() => setShowPreview(false)} 
+                className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/10 text-muted-foreground hover:text-white transition-all"
+              >
+                <X size={24} />
               </button>
             </div>
-            <div style={{ flex: 1, overflowY: 'auto', padding: '40px', background: '#f8fafc', display: 'flex', justifyContent: 'center' }}>
-              <div style={{ width: '100%', maxWidth: '700px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
+            <div className="flex-1 overflow-y-auto p-8 md:p-16 bg-[#0a0a0a] flex justify-center">
+              <div className="w-full max-w-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)]">
                 {(() => {
                   const client = clients.find(c => c.id === parseInt(formData.client_id));
                   const data = {
@@ -188,7 +194,6 @@ export default function InvoiceEditor({ isEstimate = false }: { isEstimate?: boo
                     items: formData.items,
                     total: calculateTotal()
                   };
-                   // Fallback client if not selected
                   const mockClient = { name: 'Client Name', email: 'email@example.com', address: '123 Client St' };
                   
                   switch(selectedTemplate) {
@@ -203,13 +208,21 @@ export default function InvoiceEditor({ isEstimate = false }: { isEstimate?: boo
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '24px' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
           <div className="glass-card">
-            <h3>{typeLabel} Details</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '20px' }}>
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
+                <Briefcase size={16} />
+              </div>
+              <h3 className="text-lg font-bold">General Details</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="form-group">
-                <label>Client</label>
+                <label className="flex items-center gap-2">
+                  <User size={14} className="text-blue-400" /> Client
+                </label>
                 <select 
                   value={formData.client_id} 
                   onChange={e => setFormData({ ...formData, client_id: e.target.value })}
@@ -219,8 +232,11 @@ export default function InvoiceEditor({ isEstimate = false }: { isEstimate?: boo
                   {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
+              
               <div className="form-group">
-                <label>Status</label>
+                <label className="flex items-center gap-2">
+                  <FileText size={14} className="text-blue-400" /> Status
+                </label>
                 <select 
                   value={formData.status} 
                   onChange={e => setFormData({ ...formData, status: e.target.value })}
@@ -232,16 +248,22 @@ export default function InvoiceEditor({ isEstimate = false }: { isEstimate?: boo
                   <option value={isEstimate ? 'accepted' : 'overdue'}>{isEstimate ? 'Accepted' : 'Overdue'}</option>
                 </select>
               </div>
+
               <div className="form-group">
-                <label>Issue Date</label>
+                <label className="flex items-center gap-2">
+                  <Calendar size={14} className="text-blue-400" /> {typeLabel} Date
+                </label>
                 <input 
                   type="date" 
                   value={formData.issue_date} 
                   onChange={e => setFormData({ ...formData, issue_date: e.target.value })}
                 />
               </div>
+
               <div className="form-group">
-                <label>{isEstimate ? 'Expiry Date' : 'Due Date'}</label>
+                <label className="flex items-center gap-2">
+                  <Calendar size={14} className="text-blue-400" /> {isEstimate ? 'Expiry' : 'Due'} Date
+                </label>
                 <input 
                   type="date" 
                   value={formData.due_date} 
@@ -253,32 +275,40 @@ export default function InvoiceEditor({ isEstimate = false }: { isEstimate?: boo
           </div>
 
           <div className="glass-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3>Line Items</h3>
-              <button className="btn-ghost" onClick={addItem} style={{ padding: '4px 12px', fontSize: '0.9rem' }}>
-                <Plus size={16} /> Add Item
+            <div className="flex justify-between items-center mb-6">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-500">
+                  <FileText size={16} />
+                </div>
+                <h3 className="text-lg font-bold">Line Items</h3>
+              </div>
+              <button 
+                className="btn-secondary py-2 text-xs flex items-center gap-2 hover:bg-white/10" 
+                onClick={addItem}
+              >
+                <Plus size={14} /> Add Manual Item
               </button>
             </div>
             
-            <div className="table-container">
-              <table>
+            <div className="table-container -mx-8">
+              <table className="w-full">
                 <thead>
-                  <tr>
-                    <th>Description</th>
-                    <th style={{ width: '100px' }}>Qty</th>
-                    <th style={{ width: '150px' }}>Price</th>
-                    <th style={{ width: '120px' }}>Total</th>
-                    <th style={{ width: '50px' }}></th>
+                  <tr className="bg-white/[0.02]">
+                    <th className="pl-8">Description</th>
+                    <th className="w-24">Qty</th>
+                    <th className="w-32">Price</th>
+                    <th className="w-32">Total</th>
+                    <th className="w-16 pr-8"></th>
                   </tr>
                 </thead>
                 <tbody>
                   {formData.items.map((item, idx) => (
-                    <tr key={idx}>
-                      <td>
+                    <tr key={idx} className="hover:bg-white/[0.01]">
+                      <td className="pl-8">
                         <input 
                           type="text" 
-                          placeholder="What was done?" 
-                          style={{ width: '100%' }}
+                          placeholder="What services were provided?" 
+                          className="w-full h-10 text-sm bg-transparent border-none focus:bg-white/5"
                           value={item.description}
                           onChange={e => updateItem(idx, 'description', e.target.value)}
                         />
@@ -286,7 +316,7 @@ export default function InvoiceEditor({ isEstimate = false }: { isEstimate?: boo
                       <td>
                         <input 
                           type="number" 
-                          style={{ width: '100%' }}
+                          className="w-full h-10 text-sm bg-transparent border-none focus:bg-white/5 text-center"
                           value={item.quantity}
                           onChange={e => updateItem(idx, 'quantity', parseFloat(e.target.value))}
                         />
@@ -295,16 +325,19 @@ export default function InvoiceEditor({ isEstimate = false }: { isEstimate?: boo
                         <input 
                           type="number" 
                           step="0.01"
-                          style={{ width: '100%' }}
+                          className="w-full h-10 text-sm bg-transparent border-none focus:bg-white/5"
                           value={item.unit_price}
                           onChange={e => updateItem(idx, 'unit_price', parseFloat(e.target.value))}
                         />
                       </td>
-                      <td style={{ fontWeight: 600 }}>
+                      <td className="font-bold text-white text-sm">
                         ${(item.quantity * item.unit_price).toFixed(2)}
                       </td>
-                      <td>
-                        <button onClick={() => removeItem(idx)} style={{ color: 'var(--error-color)', background: 'none' }}>
+                      <td className="pr-8 text-right">
+                        <button 
+                          onClick={() => removeItem(idx)} 
+                          className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                        >
                           <Trash2 size={16} />
                         </button>
                       </td>
@@ -312,8 +345,11 @@ export default function InvoiceEditor({ isEstimate = false }: { isEstimate?: boo
                   ))}
                   {formData.items.length === 0 && (
                     <tr>
-                      <td colSpan={5} style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '20px' }}>
-                        No items yet.
+                      <td colSpan={5} className="text-center text-muted-foreground py-16 bg-white/[0.01]">
+                        <div className="flex flex-col items-center gap-2 opacity-40">
+                          <Plus size={32} />
+                          <p className="text-sm">No items added yet</p>
+                        </div>
                       </td>
                     </tr>
                   )}
@@ -321,78 +357,89 @@ export default function InvoiceEditor({ isEstimate = false }: { isEstimate?: boo
               </table>
             </div>
 
-            <div style={{ borderTop: '1px solid var(--border-color)', marginTop: '20px', paddingTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
-              <div style={{ textAlign: 'right' }}>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Total Amount</p>
-                <h2 style={{ fontSize: '2rem', color: 'var(--accent-color)' }}>${calculateTotal().toFixed(2)}</h2>
+            <div className="mt-8 flex flex-col md:flex-row justify-between items-end gap-6 pt-8 border-t border-white/5">
+              <div className="w-full md:max-w-md pt-4">
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 block">Notes & Terms</label>
+                <textarea 
+                  placeholder="Additional notes for your client..."
+                  className="w-full h-32 text-sm bg-white/2"
+                  value={formData.notes}
+                  onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                />
+              </div>
+              <div className="text-right pb-4">
+                <p className="text-muted-foreground text-sm font-medium mb-1 uppercase tracking-tighter">Amount Due</p>
+                <h2 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
+                  ${calculateTotal().toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                </h2>
               </div>
             </div>
           </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <div className="glass-card" style={{ border: '1px solid #7c3aed33', background: 'rgba(124, 58, 237, 0.03)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-              <Sparkles size={20} style={{ color: '#7c3aed' }} />
-              <h3 style={{ color: '#7c3aed' }}>AI Assistant</h3>
+        <div className="space-y-8">
+          <div className="glass-card relative overflow-hidden bg-gradient-to-br from-violet-600/10 to-transparent border-violet-500/20">
+            <div className="absolute top-0 right-0 p-4 opacity-10">
+              <Sparkles size={64} className="text-violet-400" />
             </div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '12px' }}>
-              Describe the work performed and the AI will generate professional line items.
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles size={20} className="text-violet-400" />
+              <h3 className="font-bold text-violet-100">AI Line Item Generator</h3>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed mb-6">
+              Save time! Write a brief summary of your work and our AI will break it down into professional line items.
             </p>
             <textarea 
-              placeholder="e.g. Spent 5 hours on logo design and 2 hours on brand colors"
-              style={{ width: '100%', height: '120px', resize: 'none', background: 'rgba(0,0,0,0.2)' }}
+              placeholder="e.g. Developed a brand identity, including logo design, color palette, and 10 social media templates."
+              className="w-full h-32 text-xs bg-black/40 border-white/5 mb-4 focus:border-violet-500/50"
               value={aiNotes}
               onChange={e => setAiNotes(e.target.value)}
             />
             <button 
-              className="btn-primary" 
-              style={{ width: '100%', marginTop: '12px', background: '#7c3aed' }}
+              className="w-full py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-violet-900/20 disabled:opacity-50"
               onClick={handleAiDescribe}
               disabled={aiLoading || !aiNotes.trim()}
             >
-              {aiLoading ? <Loader2 className="animate-spin" size={18} /> : 'Describe This'}
+              {aiLoading ? <Loader2 className="animate-spin" size={16} /> : <><Sparkles size={14} /> Generate Items</>}
             </button>
           </div>
 
           <div className="glass-card">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-              <LayoutTemplate size={20} />
-              <h3>Template</h3>
+            <div className="flex items-center gap-2 mb-6">
+              <LayoutTemplate size={20} className="text-blue-400" />
+              <h3 className="font-bold">Visual Theme</h3>
             </div>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div className="grid grid-cols-1 gap-3">
+              {(['minimalist', 'professional', 'creative'] as const).map(style => (
                 <button 
-                  onClick={() => setSelectedTemplate('minimalist')}
-                  className={`btn-ghost ${selectedTemplate === 'minimalist' ? 'active' : ''}`}
-                  style={{ justifyContent: 'flex-start', border: selectedTemplate === 'minimalist' ? '1px solid var(--accent-color)' : '1px solid transparent' }}
+                  key={style}
+                  onClick={() => setSelectedTemplate(style)}
+                  className={`w-full p-4 rounded-xl border flex items-center justify-between transition-all ${
+                    selectedTemplate === style 
+                    ? 'bg-blue-500/10 border-blue-500/50 text-white ring-1 ring-blue-500/20' 
+                    : 'bg-white/[0.02] border-white/5 text-muted-foreground hover:bg-white/[0.05]'
+                  }`}
                 >
-                  Minimalist
+                  <span className="capitalize font-medium">{style}</span>
+                  {selectedTemplate === style && <CheckCircle2 size={16} className="text-blue-400" />}
                 </button>
-                <button 
-                  onClick={() => setSelectedTemplate('professional')}
-                  className={`btn-ghost ${selectedTemplate === 'professional' ? 'active' : ''}`}
-                  style={{ justifyContent: 'flex-start', border: selectedTemplate === 'professional' ? '1px solid var(--accent-color)' : '1px solid transparent' }}
-                >
-                  Professional
-                </button>
-                <button 
-                  onClick={() => setSelectedTemplate('creative')}
-                  className={`btn-ghost ${selectedTemplate === 'creative' ? 'active' : ''}`}
-                  style={{ justifyContent: 'flex-start', border: selectedTemplate === 'creative' ? '1px solid var(--accent-color)' : '1px solid transparent' }}
-                >
-                  Creative
-                </button>
-             </div>
+              ))}
+            </div>
           </div>
 
           <div className="glass-card">
-            <h3>Invoice Actions</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '20px' }}>
-              <button className="btn-ghost" style={{ justifyContent: 'flex-start' }}>
-                <Send size={18} style={{ marginRight: '8px' }} /> Send to Client
+            <h3 className="font-bold mb-6">Quick Actions</h3>
+            <div className="space-y-3">
+              <button 
+                className="w-full py-3 rounded-xl bg-white/5 border border-white/5 text-sm font-medium hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+                onClick={() => setShowPreview(true)}
+              >
+                <Eye size={18} className="text-blue-400" /> Preview PDF
               </button>
-              <button className="btn-ghost" style={{ justifyContent: 'flex-start' }} onClick={() => setShowPreview(true)}>
-                <Eye size={18} style={{ marginRight: '8px' }} /> Preview PDF
+              <button 
+                className="w-full py-3 rounded-xl bg-blue-500/5 border border-blue-500/10 text-sm font-medium hover:bg-blue-500/10 text-blue-400 transition-all flex items-center justify-center gap-2"
+              >
+                <Send size={18} /> Send to Client
               </button>
             </div>
           </div>
