@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../lib/api';
-import { Plus, Edit2, Trash2, FileText, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Plus, Edit2, Trash2, FileText, CheckCircle, XCircle, Clock, Search, Filter, ArrowRight, FileCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 
@@ -21,15 +21,6 @@ const STATUS_ICONS: Record<string, any> = {
   sent: FileText,
   expired: Clock,
   converted: CheckCircle
-};
-
-const STATUS_COLORS: Record<string, string> = {
-  accepted: 'var(--success-color)',
-  declined: 'var(--error-color)',
-  draft: 'var(--text-secondary)',
-  sent: 'var(--accent-color)',
-  expired: 'var(--text-secondary)',
-  converted: 'var(--success-color)'
 };
 
 export default function Estimates() {
@@ -86,25 +77,37 @@ export default function Estimates() {
   });
 
   return (
-    <div>
+    <div className="max-w-6xl mx-auto space-y-8">
       <div className="page-header">
-        <h1>Estimates</h1>
-        <Link to="/estimates/new" className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+        <div>
+          <h1>Estimates & Proposals</h1>
+          <p className="text-muted-foreground text-sm mt-1">Convert opportunities into professional project agreements</p>
+        </div>
+        <Link to="/estimates/new" className="btn-cta flex items-center gap-2 no-underline">
           <Plus size={18} />
-          Create Estimate
+          <span>New Proposal</span>
         </Link>
       </div>
 
       {/* Filters */}
-      <div className="glass-card" style={{ marginBottom: '24px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 200px', gap: '16px' }}>
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
           <input
             type="text"
-            placeholder="Search by client or estimate number..."
+            placeholder="Search proposals or clients..."
+            className="pl-12 w-full"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+        </div>
+        <div className="relative min-w-[200px]">
+          <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+          <select 
+            value={statusFilter} 
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="pl-12 w-full appearance-none"
+          >
             <option value="">All Statuses</option>
             <option value="draft">Draft</option>
             <option value="sent">Sent</option>
@@ -116,17 +119,17 @@ export default function Estimates() {
         </div>
       </div>
 
-      {/* Estimates Table */}
-      <div className="glass-card">
+      {/* Estimates Content */}
+      <div className="glass-card overflow-hidden">
         <div className="table-container">
           <table>
             <thead>
               <tr>
-                <th>Estimate #</th>
-                <th>Client</th>
+                <th>Identifier</th>
+                <th>Project Client</th>
                 <th>Issue Date</th>
-                <th>Expiry Date</th>
-                <th>Amount</th>
+                <th>Valid Until</th>
+                <th>Proposed Total</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
@@ -134,89 +137,86 @@ export default function Estimates() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', padding: '40px' }}>
-                    Loading estimates...
+                  <td colSpan={7} className="text-center py-20">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-10 h-10 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+                      <p className="text-muted-foreground text-sm">Retrieving proposals...</p>
+                    </div>
                   </td>
                 </tr>
               ) : filteredEstimates.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
-                    {search || statusFilter ? 'No estimates match your filters' : 'No estimates yet. Create your first one!'}
+                  <td colSpan={7}>
+                    <div className="empty-state">
+                      <div className="empty-state-icon">
+                        <FileCheck size={32} />
+                      </div>
+                      <h3 className="text-xl font-bold mb-2">No proposals found</h3>
+                      <p className="text-muted-foreground max-w-sm mx-auto mb-8">
+                        {search || statusFilter 
+                          ? "Adjust your filters to see more results." 
+                          : "Start your next project by creating a professional proposal for your clients."}
+                      </p>
+                      {!search && !statusFilter && (
+                        <Link to="/estimates/new" className="btn-secondary no-underline inline-flex items-center gap-2">
+                          <Plus size={18} /> Generate First Proposal
+                        </Link>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ) : (
                 filteredEstimates.map((estimate) => {
                   const StatusIcon = STATUS_ICONS[estimate.status] || FileText;
                   return (
-                    <tr key={estimate.id}>
-                      <td style={{ fontWeight: 600 }}>{estimate.estimate_number}</td>
-                      <td>{estimate.client_name}</td>
-                      <td>{format(new Date(estimate.issue_date), 'MMM dd, yyyy')}</td>
-                      <td>{format(new Date(estimate.expiry_date), 'MMM dd, yyyy')}</td>
-                      <td style={{ fontWeight: 600 }}>${parseFloat(estimate.total.toString()).toFixed(2)}</td>
+                    <tr key={estimate.id} className="group">
+                      <td className="font-bold text-white">#{estimate.estimate_number}</td>
                       <td>
-                        <span 
-                          className={`badge badge-${estimate.status}`}
-                          style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: '6px', 
-                            width: 'fit-content',
-                            color: STATUS_COLORS[estimate.status]
-                          }}
-                        >
-                          <StatusIcon size={14} />
+                        <div className="flex flex-col">
+                          <span className="font-medium text-foreground">{estimate.client_name}</span>
+                          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Premium Client</span>
+                        </div>
+                      </td>
+                      <td className="text-muted-foreground">{format(new Date(estimate.issue_date), 'MMM dd, yyyy')}</td>
+                      <td className="text-muted-foreground">{format(new Date(estimate.expiry_date), 'MMM dd, yyyy')}</td>
+                      <td className="font-bold text-foreground/90">${parseFloat(estimate.total.toString()).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                      <td>
+                        <span className={`badge badge-${estimate.status} inline-flex items-center gap-1.5`}>
+                          <StatusIcon size={12} />
                           {estimate.status}
                         </span>
                       </td>
                       <td>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                          {estimate.status !== 'converted' && (
+                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {estimate.status !== 'converted' ? (
                             <>
                               <Link 
                                 to={`/estimates/${estimate.id}`}
-                                style={{ color: 'var(--accent-color)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                className="p-2 hover:bg-white/5 rounded-lg text-blue-400 transition-colors"
+                                title="Modify Proposal"
                               >
                                 <Edit2 size={16} />
-                                Edit
                               </Link>
                               {estimate.status === 'accepted' && (
                                 <button
                                   onClick={() => handleConvert(estimate.id)}
-                                  style={{ 
-                                    background: 'none', 
-                                    border: 'none', 
-                                    color: 'var(--success-color)', 
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '4px'
-                                  }}
+                                  className="p-2 hover:bg-emerald-500/10 rounded-lg text-emerald-400 transition-colors"
+                                  title="Elevate to Invoice"
                                 >
-                                  <CheckCircle size={16} />
-                                  Convert
+                                  <ArrowRight size={16} />
                                 </button>
                               )}
                               <button
                                 onClick={() => handleDelete(estimate.id)}
-                                style={{ 
-                                  background: 'none', 
-                                  border: 'none', 
-                                  color: 'var(--error-color)', 
-                                  cursor: 'pointer',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '4px'
-                                }}
+                                className="p-2 hover:bg-red-500/10 rounded-lg text-red-400 transition-colors"
+                                title="Archive Proposal"
                               >
                                 <Trash2 size={16} />
-                                Delete
                               </button>
                             </>
-                          )}
-                          {estimate.status === 'converted' && (
-                            <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                              Converted to Invoice
+                          ) : (
+                            <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-full uppercase tracking-widest">
+                              Converted
                             </span>
                           )}
                         </div>

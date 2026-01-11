@@ -42,6 +42,17 @@ const initMockData = () => {
       { id: 2, name: 'Web Design', price: 2000, description: 'Standard website project' },
     ]);
   }
+  if (!localStorage.getItem('mock_estimates')) {
+    setMockData('estimates', [
+      { id: 1, client_name: 'Oscorp', estimate_number: 'EST-2024-001', issue_date: '2024-03-15', expiry_date: '2024-04-15', total: '15000.00', status: 'sent' },
+      { id: 2, client_name: 'Pied Piper', estimate_number: 'EST-2024-002', issue_date: '2024-03-20', expiry_date: '2024-04-20', total: '2500.00', status: 'accepted' },
+    ]);
+  }
+  if (!localStorage.getItem('mock_recurring')) {
+    setMockData('recurring', [
+      { id: 1, client_name: 'Daily Bugle', interval: 'month', interval_count: 1, start_date: '2024-01-01', next_run: '2024-04-01', last_run: '2024-03-01', total: 500, status: 'active', items: [{ description: 'Ad Space', quantity: 1, unit_price: 500 }] },
+    ]);
+  }
 };
 
 initMockData();
@@ -98,6 +109,12 @@ export const api = {
       return res.json();
     } catch (err) {
       console.warn('API connection failed, falling back to mock data', err);
+      if (path === '/auth/login' || path === '/auth/register') {
+        return { 
+          token: 'demo-token-' + Date.now(), 
+          user: { id: 1, email: data.email || 'demo@billio.com' } 
+        };
+      }
       const key = path.split('/')[1];
       const items = getMockData(key) || [];
       const newItem = { ...data, id: Date.now() };

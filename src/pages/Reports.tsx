@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../lib/api';
-import { TrendingUp, Users, FileText, DollarSign, Download } from 'lucide-react';
-import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { TrendingUp, Users, FileText, DollarSign, Download, PieChart as PieChartIcon, BarChart3, ArrowUpRight } from 'lucide-react';
+import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 
 interface DashboardStats {
@@ -17,7 +17,7 @@ interface RevenueData {
   collected: number;
 }
 
-const COLORS = ['#7c3aed', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6'];
+const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#6b7280'];
 
 const STATUS_COLORS: Record<string, string> = {
   paid: '#10b981',
@@ -69,7 +69,8 @@ export default function Reports() {
 
   const handleExport = async (type: 'invoices' | 'clients' | 'products') => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/reports/export?type=${type}`, {
+      const apiUrl = (import.meta as any).env?.VITE_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${apiUrl}/api/reports/export?type=${type}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -88,7 +89,14 @@ export default function Reports() {
   };
 
   if (loading || !stats) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+          <p className="text-muted-foreground animate-pulse">Analyzing financial data...</p>
+        </div>
+      </div>
+    );
   }
 
   // Prepare pie chart data
@@ -103,148 +111,216 @@ export default function Reports() {
   const overdueAmount = parseFloat(stats.overdue_stats.overdue_amount || '0');
 
   return (
-    <div>
+    <div className="max-w-6xl mx-auto space-y-8">
       <div className="page-header">
-        <h1>Reports & Analytics</h1>
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <button onClick={() => handleExport('invoices')} className="btn-ghost">
-            <Download size={18} style={{ marginRight: '8px' }} />
-            Export Invoices
+        <div>
+          <h1>Reports & Intelligence</h1>
+          <p className="text-muted-foreground text-sm mt-1">Advanced financial analytics and performance tracking</p>
+        </div>
+        <div className="flex gap-3">
+          <button onClick={() => handleExport('invoices')} className="btn-secondary flex items-center gap-2">
+            <Download size={18} />
+            <span>Export Invoices</span>
           </button>
-          <button onClick={() => handleExport('clients')} className="btn-ghost">
-            <Download size={18} style={{ marginRight: '8px' }} />
-            Export Clients
+          <button onClick={() => handleExport('clients')} className="btn-secondary flex items-center gap-2">
+            <Download size={18} />
+            <span>Export Clients</span>
           </button>
         </div>
       </div>
 
       {/* Key Metrics */}
       <div className="stats-grid">
-        <div className="glass-card">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
-            <DollarSign size={20} />
-            <span>Total Revenue</span>
+        <div className="glass-card group hover:border-emerald-500/30 transition-all duration-500">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
+              <DollarSign size={24} />
+            </div>
+            <div className="flex items-center gap-1 text-emerald-500 text-xs font-bold bg-emerald-500/10 px-2 py-1 rounded-full">
+              <ArrowUpRight size={12} /> 14%
+            </div>
           </div>
-          <h2 style={{ fontSize: '2rem', color: 'var(--success-color)' }}>${totalRevenue.toFixed(2)}</h2>
+          <p className="text-muted-foreground text-sm font-medium">Total Revenue</p>
+          <h2 className="text-3xl font-bold mt-1">${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h2>
         </div>
 
-        <div className="glass-card">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
-            <FileText size={20} />
-            <span>Total Invoices</span>
+        <div className="glass-card group hover:border-blue-500/30 transition-all duration-500">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
+              <FileText size={24} />
+            </div>
           </div>
-          <h2 style={{ fontSize: '2rem' }}>
+          <p className="text-muted-foreground text-sm font-medium">Total Invoices</p>
+          <h2 className="text-3xl font-bold mt-1">
             {stats.invoice_stats.reduce((sum, item) => sum + parseInt(item.count.toString()), 0)}
           </h2>
         </div>
 
-        <div className="glass-card">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
-            <Users size={20} />
-            <span>Active Clients</span>
+        <div className="glass-card group hover:border-purple-500/30 transition-all duration-500">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-500">
+              <Users size={24} />
+            </div>
           </div>
-          <h2 style={{ fontSize: '2rem' }}>{stats.client_stats.active_clients}</h2>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '8px' }}>
-            of {stats.client_stats.total_clients} total
-          </p>
+          <p className="text-muted-foreground text-sm font-medium">Client Base</p>
+          <div className="flex items-baseline gap-2 mt-1">
+            <h2 className="text-3xl font-bold">{stats.client_stats.active_clients}</h2>
+            <span className="text-muted-foreground text-xs">active / {stats.client_stats.total_clients} total</span>
+          </div>
         </div>
 
-        <div className="glass-card">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
-            <TrendingUp size={20} />
-            <span>Overdue Amount</span>
+        <div className="glass-card group hover:border-red-500/30 transition-all duration-500">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500">
+              <TrendingUp size={24} />
+            </div>
           </div>
-          <h2 style={{ fontSize: '2rem', color: overdueAmount > 0 ? 'var(--error-color)' : 'var(--success-color)' }}>
-            ${overdueAmount.toFixed(2)}
-          </h2>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '8px' }}>
-            {stats.overdue_stats.overdue_count || 0} invoices
-          </p>
+          <p className="text-muted-foreground text-sm font-medium">Pending Collections</p>
+          <div className="flex items-baseline gap-2 mt-1">
+            <h2 className={`text-3xl font-bold ${overdueAmount > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
+              ${overdueAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            </h2>
+            <span className="text-muted-foreground text-xs">{stats.overdue_stats.overdue_count || 0} invoices</span>
+          </div>
         </div>
       </div>
 
-      {/* Revenue Trend Chart */}
-      <div className="glass-card" style={{ marginTop: '24px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3>Revenue Trend</h3>
-          <select value={period} onChange={(e) => setPeriod(e.target.value)} style={{ width: 'auto' }}>
-            <option value="30days">Last 30 Days</option>
-            <option value="3months">Last 3 Months</option>
-            <option value="6months">Last 6 Months</option>
-            <option value="12months">Last 12 Months</option>
-          </select>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Revenue Trend Chart */}
+        <div className="lg:col-span-2 glass-card">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 border border-blue-500/20">
+                <BarChart3 size={20} />
+              </div>
+              <h3 className="text-xl font-bold">Revenue Velocity</h3>
+            </div>
+            <select 
+              value={period} 
+              onChange={(e) => setPeriod(e.target.value)} 
+              className="w-full md:w-auto text-sm py-2"
+            >
+              <option value="30days">Last 30 Days</option>
+              <option value="3months">Last 3 Months</option>
+              <option value="6months">Last 6 Months</option>
+              <option value="12months">Last 12 Months</option>
+            </select>
+          </div>
+
+          <div className="h-[350px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={revenueData}>
+                <defs>
+                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                <XAxis 
+                  dataKey="period" 
+                  stroke="rgba(255,255,255,0.4)" 
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                  dy={10}
+                />
+                <YAxis 
+                  stroke="rgba(255,255,255,0.4)" 
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                  dx={-10}
+                  tickFormatter={(value) => `$${value}`}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    background: 'rgba(23, 23, 23, 0.95)', 
+                    border: '1px solid rgba(255,255,255,0.1)', 
+                    borderRadius: '12px',
+                    backdropFilter: 'blur(8px)',
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                  }}
+                  itemStyle={{ fontSize: '12px' }}
+                  labelStyle={{ fontWeight: 'bold', marginBottom: '4px', fontSize: '12px' }}
+                  formatter={(value: number) => [`$${value.toLocaleString()}`, 'Amount']}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="revenue" 
+                  stroke="#3b82f6" 
+                  strokeWidth={3} 
+                  dot={{ r: 4, strokeWidth: 2, fill: '#171717' }} 
+                  activeDot={{ r: 6, strokeWidth: 0 }}
+                  name="Gross Revenue" 
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="collected" 
+                  stroke="#10b981" 
+                  strokeWidth={3} 
+                  dot={{ r: 4, strokeWidth: 2, fill: '#171717' }} 
+                  activeDot={{ r: 6, strokeWidth: 0 }}
+                  name="Total Collected" 
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={revenueData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-            <XAxis dataKey="period" stroke="var(--text-secondary)" />
-            <YAxis stroke="var(--text-secondary)" />
-            <Tooltip 
-              contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '8px' }}
-              formatter={(value: number) => `$${value.toFixed(2)}`}
-            />
-            <Legend />
-            <Line type="monotone" dataKey="revenue" stroke="#7c3aed" strokeWidth={2} name="Total Revenue" />
-            <Line type="monotone" dataKey="collected" stroke="#10b981" strokeWidth={2} name="Collected" />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginTop: '24px' }}>
         {/* Invoice Status Distribution */}
         <div className="glass-card">
-          <h3 style={{ marginBottom: '20px' }}>Invoice Status Distribution</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={invoiceStatusData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={(entry) => `${entry.name}: ${entry.value}`}
-                outerRadius={100}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {invoiceStatusData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.name] || COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip formatter={(value: number, name: string, props: any) => [
-                `${value} invoices ($${props.payload.amount.toFixed(2)})`,
-                name
-              ]} />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-500 border border-purple-500/20">
+              <PieChartIcon size={20} />
+            </div>
+            <h3 className="text-xl font-bold">Status Profile</h3>
+          </div>
 
-        {/* Invoice Status Breakdown */}
-        <div className="glass-card">
-          <h3 style={{ marginBottom: '20px' }}>Status Breakdown</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="h-[250px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={invoiceStatusData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={85}
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  {invoiceStatusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.name] || COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                   contentStyle={{ 
+                    background: 'rgba(23, 23, 23, 0.95)', 
+                    border: '1px solid rgba(255,255,255,0.1)', 
+                    borderRadius: '12px',
+                  }}
+                  formatter={(value: number, name: string, props: any) => [
+                    `${value} invoices ($${props.payload.amount.toLocaleString()})`,
+                    name.charAt(0).toUpperCase() + name.slice(1)
+                  ]} 
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="space-y-3 mt-6">
             {stats.invoice_stats.map((item, index) => (
-              <div
-                key={index}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  padding: '12px',
-                  background: 'rgba(0,0,0,0.2)',
-                  borderRadius: '8px',
-                  borderLeft: `4px solid ${STATUS_COLORS[item.status] || COLORS[index % COLORS.length]}`
-                }}
-              >
-                <div>
-                  <span style={{ fontWeight: 600, textTransform: 'capitalize' }}>{item.status}</span>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                    {item.count} invoice{parseInt(item.count.toString()) !== 1 ? 's' : ''}
-                  </p>
+              <div key={index} className="flex items-center justify-between p-3 rounded-xl bg-white/[0.03] border border-white/5">
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="w-2 h-2 rounded-full" 
+                    style={{ backgroundColor: STATUS_COLORS[item.status] || COLORS[index % COLORS.length] }} 
+                  />
+                  <span className="text-sm font-medium capitalize text-foreground/80">{item.status}</span>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <p style={{ fontWeight: 600, color: 'var(--accent-color)' }}>
-                    ${parseFloat(item.total_amount).toFixed(2)}
-                  </p>
+                <div className="text-right">
+                  <p className="text-sm font-bold">${parseFloat(item.total_amount).toLocaleString()}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{item.count} items</p>
                 </div>
               </div>
             ))}
