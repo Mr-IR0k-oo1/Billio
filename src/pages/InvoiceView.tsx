@@ -4,6 +4,16 @@ import { api } from '../lib/api';
 import { Edit2, Send, CheckCircle, ArrowLeft, Printer, Mail, ChevronLeft } from 'lucide-react';
 import { MinimalistTemplate } from '../components/templates/MinimalistTemplate';
 import { ProfessionalTemplate } from '../components/templates/ProfessionalTemplate';
+import { ModernMinimalTemplate } from '../components/templates/ModernMinimalTemplate';
+import { InstitutionalTemplate } from '../components/templates/InstitutionalTemplate';
+import { SaaSTemplate } from '../components/templates/SaaSTemplate';
+import { CreativeAgencyTemplate } from '../components/templates/CreativeAgencyTemplate';
+import { DeveloperTemplate } from '../components/templates/DeveloperTemplate';
+import { GlobalTemplate } from '../components/templates/GlobalTemplate';
+import { CompactTemplate } from '../components/templates/CompactTemplate';
+import { PremiumTemplate } from '../components/templates/PremiumTemplate';
+import { SubscriptionTemplate } from '../components/templates/SubscriptionTemplate';
+import { ComplianceTemplate } from '../components/templates/ComplianceTemplate';
 import toast from 'react-hot-toast';
 
 export default function InvoiceView() {
@@ -140,7 +150,17 @@ export default function InvoiceView() {
 
   const TemplateComponent = {
     'minimalist': MinimalistTemplate,
-    'professional': ProfessionalTemplate
+    'professional': ProfessionalTemplate,
+    'modern': ModernMinimalTemplate,
+    'institutional': InstitutionalTemplate,
+    'saas': SaaSTemplate,
+    'agency': CreativeAgencyTemplate,
+    'developer': DeveloperTemplate,
+    'global': GlobalTemplate,
+    'compact': CompactTemplate,
+    'premium': PremiumTemplate,
+    'subscription': SubscriptionTemplate,
+    'compliance': ComplianceTemplate
   }[invoice.template_type as string || 'minimalist'] || MinimalistTemplate;
 
   return (

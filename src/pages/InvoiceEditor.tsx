@@ -1,10 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
-import { Plus, Trash2, Save, Send, Sparkles, Loader2, LayoutTemplate, Eye, X, Calendar, User, FileText, Briefcase, CheckCircle2, Info, Receipt, CreditCard } from 'lucide-react';
+import { Plus, Trash2, Save, Send, Sparkles, Loader2, LayoutTemplate, Eye, X, Calendar, User, FileText, CheckCircle2, Info, Receipt, CreditCard } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MinimalistTemplate } from '../components/templates/MinimalistTemplate';
 import { ProfessionalTemplate } from '../components/templates/ProfessionalTemplate';
+import { ModernMinimalTemplate } from '../components/templates/ModernMinimalTemplate';
+import { InstitutionalTemplate } from '../components/templates/InstitutionalTemplate';
+import { SaaSTemplate } from '../components/templates/SaaSTemplate';
+import { CreativeAgencyTemplate } from '../components/templates/CreativeAgencyTemplate';
+import { DeveloperTemplate } from '../components/templates/DeveloperTemplate';
+import { GlobalTemplate } from '../components/templates/GlobalTemplate';
+import { CompactTemplate } from '../components/templates/CompactTemplate';
+import { PremiumTemplate } from '../components/templates/PremiumTemplate';
+import { SubscriptionTemplate } from '../components/templates/SubscriptionTemplate';
+import { ComplianceTemplate } from '../components/templates/ComplianceTemplate';
 
 interface LineItem {
   id?: number;
@@ -45,10 +55,10 @@ export default function InvoiceEditor({ isEstimate = false }: { isEstimate?: boo
     discount: 0,
     notes: '',
     terms: '',
-    template_type: 'minimalist' as 'minimalist' | 'professional'
+    template_type: 'minimalist' as 'minimalist' | 'professional' | 'modern' | 'institutional' | 'saas' | 'agency' | 'developer' | 'global' | 'compact' | 'premium' | 'subscription' | 'compliance'
   });
 
-  const [selectedTemplate, setSelectedTemplate] = useState<'minimalist' | 'professional'>('minimalist');
+  const [selectedTemplate, setSelectedTemplate] = useState<'minimalist' | 'professional' | 'modern' | 'institutional' | 'saas' | 'agency' | 'developer' | 'global' | 'compact' | 'premium' | 'subscription' | 'compliance'>('compliance');
   const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
@@ -317,6 +327,16 @@ export default function InvoiceEditor({ isEstimate = false }: { isEstimate?: boo
                   switch(selectedTemplate) {
                     case 'minimalist': return <MinimalistTemplate data={data} client={client || mockClient} />;
                     case 'professional': return <ProfessionalTemplate data={data} client={client || mockClient} />;
+                    case 'modern': return <ModernMinimalTemplate data={data} client={client || mockClient} />;
+                    case 'institutional': return <InstitutionalTemplate data={data} client={client || mockClient} />;
+                    case 'saas': return <SaaSTemplate data={data} client={client || mockClient} />;
+                    case 'agency': return <CreativeAgencyTemplate data={data} client={client || mockClient} />;
+                    case 'developer': return <DeveloperTemplate data={data} client={client || mockClient} />;
+                    case 'global': return <GlobalTemplate data={data} client={client || mockClient} />;
+                    case 'compact': return <CompactTemplate data={data} client={client || mockClient} />;
+                    case 'premium': return <PremiumTemplate data={data} client={client || mockClient} />;
+                    case 'subscription': return <SubscriptionTemplate data={data} client={client || mockClient} />;
+                    case 'compliance': return <ComplianceTemplate data={data} client={client || mockClient} />;
                   }
                 })()}
               </div>
@@ -643,7 +663,7 @@ export default function InvoiceEditor({ isEstimate = false }: { isEstimate?: boo
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4">
-              {(['minimalist', 'professional'] as const).map(style => (
+              {(['minimalist', 'professional', 'modern', 'institutional', 'saas', 'agency', 'developer', 'global', 'compact', 'premium', 'subscription', 'compliance'] as const).map(style => (
                 <button 
                   key={style}
                   onClick={() => setSelectedTemplate(style)}

@@ -16,6 +16,19 @@ export interface InvoiceData {
   due_date: string;
   items: LineItem[];
   total: number;
+  subtotal?: number;
+  tax_amount?: number;
+  discount?: number;
+  notes?: string;
+  subscription_period?: string;
+  usage_summary?: { label: string; value: string }[];
+  currency_code?: string;
+  currency_symbol?: string;
+  renewal_date?: string;
+  plan_name?: string;
+  registration_number?: string;
+  tax_id?: string;
+  regulatory_reference?: string;
 }
 
 export interface InvoiceTemplateProps {
