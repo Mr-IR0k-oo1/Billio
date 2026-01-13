@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
@@ -17,9 +17,12 @@ import {
   User
 } from 'lucide-react';
 
+import { Logo } from './logo';
+
 const TopBar = () => {
   const [isScrolled, setIsScrolled] = React.useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const path = location.pathname.split('/').filter(Boolean);
   const userJson = localStorage.getItem('user');
   const user = userJson ? JSON.parse(userJson) : { email: 'user@billio.com' };
@@ -35,11 +38,18 @@ const TopBar = () => {
   return (
     <header className={`topbar transition-all duration-500 ${isScrolled ? 'scrolled' : ''}`}>
       <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.15em] font-bold text-muted-foreground/60">
-        <span className="hover:text-white cursor-pointer transition-colors">Workspace</span>
+        <span className="hover:text-white cursor-pointer transition-colors" onClick={() => navigate('/dashboard')}>Workspace</span>
         {path.map((p, i) => (
           <React.Fragment key={p}>
             <ChevronRight size={10} className="text-muted-foreground/30" />
-            <span className={`capitalize ${i === path.length - 1 ? 'text-white' : 'hover:text-white cursor-pointer transition-colors'}`}>
+            <span 
+              className={`capitalize ${i === path.length - 1 ? 'text-white' : 'hover:text-white cursor-pointer transition-colors'}`}
+              onClick={() => {
+                if (i < path.length - 1) {
+                  navigate('/' + path.slice(0, i + 1).join('/'));
+                }
+              }}
+            >
               {p.replace('-', ' ')}
             </span>
           </React.Fragment>
@@ -62,11 +72,14 @@ const TopBar = () => {
         </button>
 
         <div className="flex items-center gap-4 pl-4 border-l border-white/[0.05]">
-          <div className="text-right hidden sm:block">
+          <div className="text-right hidden sm:block cursor-pointer" onClick={() => navigate('/settings')}>
             <p className="text-xs font-semibold text-white leading-tight">{user.email.split('@')[0]}</p>
             <p className="text-[9px] text-muted-foreground/40 uppercase tracking-wider font-bold">Premium</p>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/[0.05] flex items-center justify-center hover:bg-white/[0.05] transition-colors cursor-pointer group">
+          <div 
+            className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/[0.05] flex items-center justify-center hover:bg-white/[0.05] transition-colors cursor-pointer group"
+            onClick={() => navigate('/settings')}
+          >
             <User size={18} className="text-muted-foreground group-hover:text-white transition-colors" />
           </div>
         </div>
@@ -98,8 +111,8 @@ const Sidebar = () => {
   return (
     <aside className="sidebar">
       <div className="brand px-4">
-        <h2 className="text-2xl font-bold tracking-tight text-white mb-1.5">Billio<span className="text-white/40">.</span></h2>
-        <p className="text-[9px] tracking-[0.3em] uppercase text-muted-foreground/40 font-bold">Standard of Excellence</p>
+        <Logo white />
+        <p className="text-[9px] tracking-[0.3em] uppercase text-muted-foreground/40 font-bold mt-4">Standard of Excellence</p>
       </div>
       
       <nav className="nav-links">

@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FileText, Send, Clock, Zap, Shield, TrendingUp } from 'lucide-react';
-import { AnimatedGroup } from '@/components/motion-primitives/animated-group';
 
 export const Features = () => {
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -71,40 +70,25 @@ export const Features = () => {
           </motion.div>
         </div>
 
-        <AnimatedGroup
-            variants={{
-                container: {
-                    visible: {
-                        transition: {
-                            staggerChildren: 0.05,
-                        },
-                    },
-                },
-                item: {
-                    hidden: { opacity: 0, y: 20, filter: 'blur(10px)' },
-                    visible: { opacity: 1, y: 0, filter: 'blur(0px)' },
-                },
-            }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          {features.map((feature, idx) => (
-            <div 
-              key={idx}
-              className="feature-card group h-full flex flex-col"
-            >
-              <div className="relative z-10">
-                <div className="mb-8 p-3 rounded-2xl bg-blue-500/5 w-fit border border-blue-500/10 group-hover:scale-110 group-hover:bg-blue-500/10 transition-all duration-500">
-                    {feature.icon}
-                </div>
-                <h3 className="text-xl font-bold text-white mb-4 group-hover:text-blue-400 transition-colors duration-300">{feature.title}</h3>
-                <p className="text-gray-400 leading-relaxed mb-8 flex-grow">{feature.desc}</p>
-                <div className="inline-flex items-center gap-2 text-xs text-blue-400/80 font-semibold tracking-wider uppercase bg-blue-500/5 px-3 py-1 rounded-full border border-blue-500/10 group-hover:border-blue-500/30 transition-all duration-500">
-                    {feature.highlight}
-                </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {features.map((feature, idx) => (
+          <div 
+            key={idx}
+            className="feature-card group h-full flex flex-col"
+          >
+            <div className="relative z-10">
+              <div className="mb-8 p-3 rounded-2xl bg-blue-500/5 w-fit border border-blue-500/10 group-hover:scale-110 group-hover:bg-blue-500/10 transition-all duration-500">
+                  {feature.icon}
+              </div>
+              <h3 className="text-xl font-bold text-white mb-4 group-hover:text-blue-400 transition-colors duration-300">{feature.title}</h3>
+              <p className="text-gray-400 leading-relaxed mb-8 flex-grow">{feature.desc}</p>
+              <div className="inline-flex items-center gap-2 text-xs text-blue-400/80 font-semibold tracking-wider uppercase bg-blue-500/5 px-3 py-1 rounded-full border border-blue-500/10 group-hover:border-blue-500/30 transition-all duration-500">
+                  {feature.highlight}
               </div>
             </div>
-          ))}
-        </AnimatedGroup>
+          </div>
+        ))}
+      </div>
       </div>
     </section>
   );

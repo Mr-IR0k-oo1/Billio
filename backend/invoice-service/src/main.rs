@@ -144,6 +144,8 @@ async fn main() {
         .route("/api/recurring/:id", get(get_recurring).put(update_recurring).delete(delete_recurring))
         .route("/api/reports/dashboard-stats", get(get_dashboard_stats))
         .route("/api/reports/revenue", get(get_revenue_stats))
+        .route("/api/reports/export", get(export_reports))
+        .route("/api/invoices/:id/send", post(send_invoice_email))
         .layer(CorsLayer::permissive())
         .with_state(state);
 
@@ -352,9 +354,11 @@ async fn get_dashboard_stats(auth: AuthContext, State(state): State<Arc<AppState
     let overdue_stats = sqlx::query_as::<_, OverdueStats>("SELECT count(*) as overdue_count, COALESCE(sum(total)::float8, 0) as overdue_amount FROM invoices WHERE user_id = $1 AND status = 'overdue'").bind(auth.user_id).fetch_one(&state.db).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
     let total_clients: i64 = sqlx::query_scalar("SELECT count(*) FROM clients WHERE user_id = $1").bind(auth.user_id).fetch_one(&state.db).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
     
+    let revenue_stats = sqlx::query_as::<_, RevenueStat>("SELECT date_trunc('month', created_at) as period, sum(total)::float8 as revenue, sum(CASE WHEN status = 'paid' THEN total ELSE 0 END)::float8 as collected FROM invoices WHERE user_id = $1 GROUP BY period ORDER BY period DESC LIMIT 6").bind(auth.user_id).fetch_all(&state.db).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+
     Ok(Json(DashboardStats {
         invoice_stats,
-        revenue_stats: vec![], // Placeholder
+        revenue_stats,
         client_stats: ClientStats { total_clients, active_clients: total_clients },
         overdue_stats,
     }))
@@ -363,4 +367,52 @@ async fn get_dashboard_stats(auth: AuthContext, State(state): State<Arc<AppState
 async fn get_revenue_stats(auth: AuthContext, State(state): State<Arc<AppState>>, Query(params): Query<std::collections::HashMap<String, String>>) -> Result<Json<Vec<RevenueStat>>, (StatusCode, String)> {
     let stats = sqlx::query_as::<_, RevenueStat>("SELECT date_trunc('month', created_at) as period, sum(total)::float8 as revenue, sum(CASE WHEN status = 'paid' THEN total ELSE 0 END)::float8 as collected FROM invoices WHERE user_id = $1 GROUP BY period ORDER BY period DESC").bind(auth.user_id).fetch_all(&state.db).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
     Ok(Json(stats))
+}
+
+async fn export_reports(auth: AuthContext, State(state): State<Arc<AppState>>, Query(params): Query<std::collections::HashMap<String, String>>) -> Result<Response<Body>, (StatusCode, String)> {
+    let export_type = params.get("type").map(|s| s.as_str()).unwrap_or("invoices");
+    
+    let csv_content = match export_type {
+        "clients" => {
+            let clients = sqlx::query!("SELECT name, email, phone FROM clients WHERE user_id = $1", auth.user_id).fetch_all(&state.db).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+            let mut w = String::from("Name,Email,Phone\n");
+            for c in clients {
+                w.push_str(&format!("{},{},{}\n", c.name, c.email.unwrap_or_default(), c.phone.unwrap_or_default()));
+            }
+            w
+        },
+        "products" => {
+            let products = sqlx::query!("SELECT name, price FROM products WHERE user_id = $1", auth.user_id).fetch_all(&state.db).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+            let mut w = String::from("Name,Price\n");
+            for p in products {
+                w.push_str(&format!("{},{}\n", p.name, p.price));
+            }
+            w
+        },
+        _ => {
+            let invoices = sqlx::query!("SELECT invoice_number, status, total FROM invoices WHERE user_id = $1", auth.user_id).fetch_all(&state.db).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+            let mut w = String::from("Invoice Number,Status,Total\n");
+            for i in invoices {
+                w.push_str(&format!("{},{},{}\n", i.invoice_number, i.status, i.total));
+            }
+            w
+        }
+    };
+
+    Ok(Response::builder()
+        .header(header::CONTENT_TYPE, "text/csv")
+        .header(header::CONTENT_DISPOSITION, format!("attachment; filename=\"{}_export.csv\"", export_type))
+        .body(Body::from(csv_content))
+        .unwrap())
+}
+
+async fn send_invoice_email(auth: AuthContext, Path(id): Path<i32>, State(state): State<Arc<AppState>>) -> Result<StatusCode, (StatusCode, String)> {
+    let invoice = sqlx::query!("SELECT invoice_number FROM invoices WHERE id = $1 AND user_id = $2", id, auth.user_id).fetch_optional(&state.db).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?.ok_or((StatusCode::NOT_FOUND, "Not found".to_string()))?;
+    
+    // Simulate sending email
+    tracing::info!("Simulating sending email for invoice {}", invoice.invoice_number);
+    
+    sqlx::query("UPDATE invoices SET status = 'sent' WHERE id = $1 AND status = 'draft'").bind(id).execute(&state.db).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    
+    Ok(StatusCode::OK)
 }

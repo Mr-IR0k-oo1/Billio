@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../lib/api';
 import { Plus, Users, FileText, TrendingUp, ArrowUpRight, Clock, CheckCircle2, AlertCircle, Calendar, CreditCard, ChevronRight, Activity } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -14,6 +14,7 @@ interface Invoice {
 }
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalInvoices: 0,
     totalClients: 0,
@@ -121,7 +122,7 @@ export default function Dashboard() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Link to="/clients/new" className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm font-bold hover:bg-white/10 transition-all no-underline text-white flex items-center gap-2">
+          <Link to="/clients" className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm font-bold hover:bg-white/10 transition-all no-underline text-white flex items-center gap-2">
             <Users size={18} />
             <span>Add Client</span>
           </Link>
@@ -217,9 +218,12 @@ export default function Dashboard() {
                 </h3>
                 <p className="text-xs text-muted-foreground uppercase tracking-[0.2em] font-bold mt-1">Revenue Performance</p>
               </div>
-              <select className="bg-white/5 border-white/10 rounded-lg px-3 py-1.5 text-xs font-bold outline-none focus:ring-1 ring-blue-500/30">
-                <option>Last 6 Months</option>
-                <option>Last Year</option>
+              <select 
+                className="bg-white/5 border-white/10 rounded-lg px-3 py-1.5 text-xs font-bold outline-none focus:ring-1 ring-blue-500/30 cursor-pointer"
+                onChange={(e) => console.log('Change period:', e.target.value)}
+              >
+                <option value="6m">Last 6 Months</option>
+                <option value="1y">Last Year</option>
               </select>
             </div>
             
@@ -295,7 +299,7 @@ export default function Dashboard() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: idx * 0.05 }}
                         className="group hover:bg-white/[0.01] transition-colors cursor-pointer"
-                        onClick={() => window.location.href = `/invoices/${invoice.id}`}
+                        onClick={() => navigate(`/invoices/${invoice.id}`)}
                       >
                         <td className="pl-8 py-5">
                           <div className="flex items-center gap-3">
@@ -340,7 +344,10 @@ export default function Dashboard() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-blue-500/10 transition-colors duration-500" />
             <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white mb-6">Quick Actions</h3>
             <div className="grid grid-cols-1 gap-4">
-              <button className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all group/btn">
+              <button 
+                onClick={() => navigate('/clients?add=true')}
+                className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all group/btn"
+              >
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                     <Plus size={18} />
@@ -352,7 +359,10 @@ export default function Dashboard() {
                 </div>
                 <ChevronRight size={14} className="text-muted-foreground group-hover/btn:translate-x-1 transition-transform" />
               </button>
-              <button className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all group/btn">
+              <button 
+                onClick={() => navigate('/recurring/new')}
+                className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all group/btn"
+              >
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
                     <Calendar size={18} />

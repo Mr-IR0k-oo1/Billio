@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { AnimatedGroup } from '@/components/motion-primitives/animated-group';
 
 export const Audience = () => (
   <section className="py-32 border-y border-white/5 bg-black relative overflow-hidden">
@@ -26,22 +25,7 @@ export const Audience = () => (
         </p>
       </motion.div>
 
-      <AnimatedGroup
-        variants={{
-          container: {
-            visible: {
-              transition: {
-                staggerChildren: 0.1,
-              },
-            },
-          },
-          item: {
-            hidden: { opacity: 0, scale: 0.8 },
-            visible: { opacity: 1, scale: 1 },
-          },
-        }}
-        className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto"
-      >
+      <div className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto">
         {["Designers", "Developers", "Marketers", "Consultants", "Agencies", "Copywriters", "Photographers", "Artists"].map((role, i) => (
           <div 
             key={i} 
@@ -50,7 +34,7 @@ export const Audience = () => (
             {role}
           </div>
         ))}
-      </AnimatedGroup>
+      </div>
     </div>
   </section>
 );

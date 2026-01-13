@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { Star, Quote } from 'lucide-react';
-import { AnimatedGroup } from '@/components/motion-primitives/animated-group';
 
 export const Testimonials = () => {
   const testimonials = [
@@ -48,51 +47,36 @@ export const Testimonials = () => {
           </motion.div>
         </div>
         
-        <AnimatedGroup
-          variants={{
-            container: {
-              visible: {
-                transition: {
-                  staggerChildren: 0.1,
-                },
-              },
-            },
-            item: {
-              hidden: { opacity: 0, y: 20 },
-              visible: { opacity: 1, y: 0 },
-            },
-          }}
-          className="grid md:grid-cols-3 gap-8 mb-24"
-        >
-          {testimonials.map((testimonial, idx) => (
-            <div
-              key={idx}
-              className="glass-panel p-10 group hover:border-white/20 transition-all duration-500 relative flex flex-col h-full bg-white/[0.02]"
-            >
-              <Quote className="absolute top-6 right-8 text-white/5 group-hover:text-blue-500/20 transition-colors duration-500" size={48} />
-              
-              <div className="flex items-center mb-6">
-                {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} size={14} className="text-blue-500 fill-blue-500 mr-1" />
-                ))}
+      <div className="grid md:grid-cols-3 gap-8 mb-24">
+        {testimonials.map((testimonial, idx) => (
+          <div
+            key={idx}
+            className="glass-panel p-10 group hover:border-white/20 transition-all duration-500 relative flex flex-col h-full bg-white/[0.02]"
+          >
+            <Quote className="absolute top-6 right-8 text-white/5 group-hover:text-blue-500/20 transition-colors duration-500" size={48} />
+            
+            <div className="flex items-center mb-6">
+              {[...Array(testimonial.rating)].map((_, i) => (
+                <Star key={i} size={14} className="text-blue-500 fill-blue-500 mr-1" />
+              ))}
+            </div>
+            
+            <p className="text-gray-300 mb-10 italic leading-relaxed text-lg flex-grow">
+              "{testimonial.content}"
+            </p>
+            
+            <div className="flex items-center gap-4">
+              <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${testimonial.color} flex items-center justify-center text-white font-bold text-sm shadow-xl`}>
+                {testimonial.avatar}
               </div>
-              
-              <p className="text-gray-300 mb-10 italic leading-relaxed text-lg flex-grow">
-                "{testimonial.content}"
-              </p>
-              
-              <div className="flex items-center gap-4">
-                <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${testimonial.color} flex items-center justify-center text-white font-bold text-sm shadow-xl`}>
-                  {testimonial.avatar}
-                </div>
-                <div>
-                  <div className="font-bold text-white text-base">{testimonial.name}</div>
-                  <div className="text-xs text-gray-500 uppercase tracking-widest font-semibold">{testimonial.role}</div>
-                </div>
+              <div>
+                <div className="font-bold text-white text-base">{testimonial.name}</div>
+                <div className="text-xs text-gray-500 uppercase tracking-widest font-semibold">{testimonial.role}</div>
               </div>
             </div>
-          ))}
-        </AnimatedGroup>
+          </div>
+        ))}
+      </div>
 
         {/* Social Proof Stats */}
         <div className="p-1 rounded-3xl bg-gradient-to-r from-blue-500/20 via-blue-400/10 to-blue-500/20 max-w-5xl mx-auto">

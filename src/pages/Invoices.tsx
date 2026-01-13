@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../lib/api';
 import { Plus, Download, Mail, Filter, Search, CheckCircle2, Clock, AlertCircle, Hash, Activity, Eye } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Invoice {
@@ -17,6 +17,7 @@ export default function Invoices() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const navigate = useNavigate();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -172,6 +173,10 @@ export default function Invoices() {
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ delay: idx * 0.02 }}
                     className="group hover:bg-white/[0.01] transition-colors cursor-pointer"
+                    onClick={() => {
+                      if (window.getSelection()?.toString()) return; // Don't navigate if selecting text
+                      navigate(`/invoices/${inv.id}`);
+                    }}
                   >
                     <td className="pl-10 py-6">
                       <div className="flex items-center gap-3">

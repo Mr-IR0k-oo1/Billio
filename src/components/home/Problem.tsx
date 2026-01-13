@@ -1,6 +1,5 @@
 import { X, Clock, AlertCircle, Ban, ZapOff } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { AnimatedGroup } from '@/components/motion-primitives/animated-group';
 
 export const Problem = () => (
   <section className="problem-section relative py-32 overflow-hidden">
@@ -25,22 +24,7 @@ export const Problem = () => (
             </p>
           </motion.div>
 
-          <AnimatedGroup
-            variants={{
-              container: {
-                visible: {
-                  transition: {
-                    staggerChildren: 0.1,
-                  },
-                },
-              },
-              item: {
-                hidden: { opacity: 0, x: -20 },
-                visible: { opacity: 1, x: 0 },
-              },
-            }}
-            className="space-y-4"
-          >
+          <div className="space-y-4">
             {[
               { text: "Staring at a blank page, trying to describe your work professionally", icon: <AlertCircle size={14} /> },
               { text: "Copy-pasting client details into templates for the 10th time", icon: <Ban size={14} /> }, 
@@ -56,7 +40,7 @@ export const Problem = () => (
                 </span>
               </div>
             ))}
-          </AnimatedGroup>
+          </div>
         </div>
 
         <div className="relative">

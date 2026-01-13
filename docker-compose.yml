@@ -59,6 +59,29 @@ services:
     depends_on:
       - postgres
 
+  company-service:
+    build:
+      context: .
+      dockerfile: backend/company-service/Dockerfile
+    ports:
+      - "5005:5005"
+    environment:
+      DATABASE_URL: postgres://postgres:password@postgres:5432/billio
+      JWT_SECRET: supersecret
+    depends_on:
+      - postgres
+
+  ai-service:
+    build:
+      context: .
+      dockerfile: backend/ai-service/Dockerfile
+    ports:
+      - "5006:5006"
+    environment:
+      JWT_SECRET: supersecret
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-""}
+    # No postgres dependency needed for AI service usually
+
   gateway:
     image: nginx:alpine
     ports:
@@ -70,6 +93,8 @@ services:
       - invoice-service
       - client-service
       - product-service
+      - company-service
+      - ai-service
 
 volumes:
   postgres_data:

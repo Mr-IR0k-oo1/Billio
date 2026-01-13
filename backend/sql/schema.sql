@@ -14,6 +14,10 @@ CREATE TABLE IF NOT EXISTS clients (
     email TEXT,
     phone TEXT,
     address TEXT,
+    tax_id TEXT,
+    payment_terms INTEGER DEFAULT 30,
+    notes TEXT,
+    status TEXT DEFAULT 'active',
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -77,4 +81,28 @@ CREATE TABLE IF NOT EXISTS recurring_invoices (
     status TEXT NOT NULL DEFAULT 'active',
     total DECIMAL(12, 2) NOT NULL DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Companies/Settings table
+CREATE TABLE IF NOT EXISTS companies (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+    company_name TEXT NOT NULL,
+    company_email TEXT,
+    company_phone TEXT,
+    company_address TEXT,
+    company_website TEXT,
+    tax_id TEXT,
+    logo_url TEXT,
+    invoice_prefix TEXT DEFAULT 'INV',
+    invoice_starting_number INTEGER DEFAULT 1000,
+    estimate_prefix TEXT DEFAULT 'EST',
+    estimate_starting_number INTEGER DEFAULT 1000,
+    default_payment_terms INTEGER DEFAULT 30,
+    default_tax_rate DECIMAL(5, 2) DEFAULT 0,
+    default_currency TEXT DEFAULT 'USD',
+    default_notes TEXT,
+    default_terms TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
 );

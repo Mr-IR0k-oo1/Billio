@@ -15,13 +15,19 @@ use argon2::{
     password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2,
 };
-use common::{create_jwt};
+use common::{create_jwt, AuthContext};
 use std::sync::Arc;
 use crate::db::DbPool;
 
 struct AppState {
     db: DbPool,
-    jwt_secret: String,
+    jwt_secret: Arc<String>,
+}
+
+impl axum::extract::FromRef<Arc<AppState>> for Arc<String> {
+    fn from_ref(state: &Arc<AppState>) -> Self {
+        state.jwt_secret.clone()
+    }
 }
 
 #[tokio::main]
@@ -30,7 +36,7 @@ async fn main() {
     tracing_subscriber::fmt::init();
 
     let pool = db::init_pool().await;
-    let jwt_secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| "supersecret".to_string());
+    let jwt_secret = Arc::new(std::env::var("JWT_SECRET").unwrap_or_else(|_| "supersecret".to_string()));
     
     let state = Arc::new(AppState {
         db: pool,
@@ -41,6 +47,9 @@ async fn main() {
         .route("/api/auth/register", post(register))
         .route("/api/auth/login", post(login))
         .route("/api/auth/status", get(status))
+        .route("/api/auth/change-password", post(change_password))
+        .route("/api/auth/forgot-password", post(forgot_password))
+        .route("/api/auth/reset-password", post(reset_password))
         .layer(CorsLayer::permissive())
         .with_state(state);
 
@@ -61,6 +70,23 @@ struct RegisterRequest {
 struct LoginRequest {
     email: String,
     password: String,
+}
+
+#[derive(Deserialize)]
+struct ChangePasswordRequest {
+    current_password: String,
+    new_password: String,
+}
+
+#[derive(Deserialize)]
+struct ForgotPasswordRequest {
+    email: String,
+}
+
+#[derive(Deserialize)]
+struct ResetPasswordRequest {
+    token: String,
+    new_password: String,
 }
 
 #[derive(Serialize)]
@@ -137,6 +163,59 @@ async fn login(
             email: user.email,
         }
     }))
+}
+
+async fn change_password(
+    auth: AuthContext,
+    State(state): State<Arc<AppState>>,
+    Json(payload): Json<ChangePasswordRequest>,
+) -> Result<StatusCode, (StatusCode, String)> {
+    let user = sqlx::query_as::<_, models::User>(
+        "SELECT id, email, password_hash FROM users WHERE id = $1"
+    )
+    .bind(auth.user_id)
+    .fetch_one(&state.db)
+    .await
+    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+
+    let parsed_hash = PasswordHash::new(&user.password_hash)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    
+    Argon2::default()
+        .verify_password(payload.current_password.as_bytes(), &parsed_hash)
+        .map_err(|_| (StatusCode::UNAUTHORIZED, "Current password incorrect".to_string()))?;
+
+    let salt = SaltString::generate(&mut OsRng);
+    let argon2 = Argon2::default();
+    let new_password_hash = argon2
+        .hash_password(payload.new_password.as_bytes(), &salt)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?
+        .to_string();
+
+    sqlx::query("UPDATE users SET password_hash = $1 WHERE id = $2")
+        .bind(new_password_hash)
+        .bind(auth.user_id)
+        .execute(&state.db)
+        .await
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+
+    Ok(StatusCode::OK)
+}
+
+async fn forgot_password(
+    Json(payload): Json<ForgotPasswordRequest>,
+) -> Result<StatusCode, (StatusCode, String)> {
+    // Simulate sending reset email
+    tracing::info!("Simulating forgot-password email for {}", payload.email);
+    Ok(StatusCode::OK)
+}
+
+async fn reset_password(
+    Json(payload): Json<ResetPasswordRequest>,
+) -> Result<StatusCode, (StatusCode, String)> {
+    // In a real app, verify the token. For now, simulate success.
+    tracing::info!("Simulating password reset with token {}", payload.token);
+    Ok(StatusCode::OK)
 }
 
 async fn status() -> &'static str {

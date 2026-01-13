@@ -4,6 +4,8 @@ members = [
     "invoice-service",
     "client-service",
     "product-service",
-    "common"
+    "common",
+    "company-service",
+    "ai-service"
 ]
 resolver = "2"

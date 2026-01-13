@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
+import toast from 'react-hot-toast';
 import { Plus, Trash2, Save, Send, Sparkles, Loader2, LayoutTemplate, Eye, X, Calendar, User, FileText, CheckCircle2, Info, Receipt, CreditCard } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MinimalistTemplate } from '../components/templates/MinimalistTemplate';
@@ -68,6 +69,23 @@ export default function InvoiceEditor({ isEstimate = false }: { isEstimate?: boo
   }, [id, isEstimate]);
 
   const fetchClients = async () => {
+    const token = localStorage.getItem('token');
+    const isDemo = token?.startsWith('demo-token-');
+
+    if (isDemo) {
+      const stored = localStorage.getItem('demo-clients');
+      if (stored) {
+        setClients(JSON.parse(stored));
+      } else {
+        // Fallback to default if not initialized
+        setClients([
+          { id: 1, name: 'Acme Corp', email: 'billing@acme.com', address: '123 Enterprise Way, San Francisco, CA' },
+          { id: 2, name: 'Global Tech', email: 'accounts@globaltech.io', address: '78 Innovation Blvd, Austin, TX' }
+        ]);
+      }
+      return;
+    }
+
     try {
       const data = await api.get('/clients');
       setClients(data);
@@ -194,10 +212,10 @@ export default function InvoiceEditor({ isEstimate = false }: { isEstimate?: boo
     return { subtotal, discountAmount, taxAmount, total };
   })();
 
-  const handleSave = async () => {
+  const handleSave = async (silent = false) => {
     if (!formData.client_id) {
-      alert('Please select a client');
-      return;
+      toast.error('Please select a client');
+      return null;
     }
     
     setLoading(true);
@@ -212,14 +230,43 @@ export default function InvoiceEditor({ isEstimate = false }: { isEstimate?: boo
         [isEstimate ? 'expiry_date' : 'due_date']: formData.due_date,
       };
 
+      let result;
       if (isEdit) {
-        await api.put(`${apiEndpoint}/${id}`, payload);
+        result = await api.put(`${apiEndpoint}/${id}`, payload);
       } else {
-        await api.post(apiEndpoint, payload);
+        result = await api.post(apiEndpoint, payload);
       }
+      
+      if (!silent) {
+        toast.success(`${typeLabel} saved successfully`);
+        navigate(isEstimate ? '/estimates' : '/invoices');
+      }
+      return result;
+    } catch (err: any) {
+      toast.error(err.message || `Failed to save ${typeLabel}`);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDispatch = async () => {
+    const saved = await handleSave(true);
+    if (!saved) return;
+
+    const documentId = isEdit ? id : saved.id;
+    if (!documentId) {
+      toast.error('Failed to identify document ID for dispatch');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await api.post(`${apiEndpoint}/${documentId}/send`, {});
+      toast.success(`${typeLabel} dispatched to client`);
       navigate(isEstimate ? '/estimates' : '/invoices');
     } catch (err: any) {
-      alert(err.response?.data?.error || `Failed to save ${typeLabel}`);
+      toast.error('Saved, but failed to dispatch: ' + (err.message || 'Unknown error'));
     } finally {
       setLoading(false);
     }
@@ -240,7 +287,7 @@ export default function InvoiceEditor({ isEstimate = false }: { isEstimate?: boo
         setAiNotes('');
       }
     } catch (err) {
-      alert('AI failed to process notes. Make sure OpenAI API key is set.');
+      toast.error('AI failed to process notes. Make sure OpenAI API key is set.');
     } finally {
       setAiLoading(false);
     }
@@ -287,7 +334,7 @@ export default function InvoiceEditor({ isEstimate = false }: { isEstimate?: boo
           </button>
           <button 
             className={`btn-cta flex items-center gap-3 px-8 py-3 text-sm font-bold shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] ${isEstimate ? 'shadow-amber-500/10' : 'shadow-blue-500/10'}`} 
-            onClick={handleSave} 
+            onClick={() => handleSave()} 
             disabled={loading}
           >
             {loading ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
@@ -702,9 +749,11 @@ export default function InvoiceEditor({ isEstimate = false }: { isEstimate?: boo
                 Review PDF View
               </button>
               <button 
-                className="w-full py-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-sm font-black hover:bg-blue-500/20 text-blue-400 transition-all flex items-center justify-center gap-3 shadow-lg shadow-blue-500/5 group"
+                className="w-full py-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-sm font-black hover:bg-blue-500/20 text-blue-400 transition-all flex items-center justify-center gap-3 shadow-lg shadow-blue-500/5 group disabled:opacity-50"
+                onClick={handleDispatch}
+                disabled={loading}
               >
-                <Send size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" /> 
+                {loading ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />}
                 Dispatch {typeLabel}
               </button>
             </div>

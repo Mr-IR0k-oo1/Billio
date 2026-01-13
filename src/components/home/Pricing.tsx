@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { CheckCircle2, Star, Zap, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { AnimatedGroup } from '@/components/motion-primitives/animated-group';
+import { HoverBorderGradient } from '../ui/hover-border-gradient';
 
 export const Pricing = () => (
   <section id="pricing" className="py-32 relative overflow-hidden">
@@ -33,22 +33,7 @@ export const Pricing = () => (
         </div>
       </div>
       
-      <AnimatedGroup
-        variants={{
-          container: {
-            visible: {
-              transition: {
-                staggerChildren: 0.1,
-              },
-            },
-          },
-          item: {
-            hidden: { opacity: 0, y: 30 },
-            visible: { opacity: 1, y: 0 },
-          },
-        }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto"
-      >
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
         {/* Free Plan */}
         <div className="pricing-card group hover:border-white/10 transition-all duration-500 bg-[#080808] border-white/5">
           <h3 className="text-xl font-bold text-white mb-2">Starter</h3>
@@ -71,8 +56,13 @@ export const Pricing = () => (
               </div>
             ))}
           </div>
-          <Link to="/register" className="h-12 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white font-bold hover:bg-white/10 transition-all">
-            Get Started
+          <Link to="/register">
+            <HoverBorderGradient
+              containerClassName="rounded-xl w-full"
+              className="h-12 w-full flex items-center justify-center bg-white/5 text-white font-bold"
+            >
+              Get Started
+            </HoverBorderGradient>
           </Link>
         </div>
         
@@ -109,8 +99,13 @@ export const Pricing = () => (
             ))}
           </div>
           <div className="space-y-3">
-            <Link to="/register" className="h-14 flex items-center justify-center rounded-xl bg-white text-black font-bold hover:bg-gray-200 transition-all shadow-xl shadow-white/5">
-              Start 14-Day Free Trial
+            <Link to="/register">
+              <HoverBorderGradient
+                containerClassName="rounded-xl w-full"
+                className="h-14 w-full flex items-center justify-center bg-white text-black font-bold"
+              >
+                Start 14-Day Free Trial
+              </HoverBorderGradient>
             </Link>
             <p className="text-[10px] text-gray-500 text-center uppercase tracking-widest font-mono">No credit card required</p>
           </div>
@@ -144,7 +139,7 @@ export const Pricing = () => (
             Join Waitlist
           </button>
         </div>
-      </AnimatedGroup>
+      </div>
 
       {/* Money-back guarantee */}
       <motion.div 

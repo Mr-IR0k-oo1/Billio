@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Timer, Sparkles, Clock, Lock, ArrowUpRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { HoverBorderGradient } from '../ui/hover-border-gradient';
 
 export const FinalCTA = () => (
   <section className="py-32 relative overflow-hidden bg-black">
@@ -34,13 +35,23 @@ export const FinalCTA = () => (
               </p>
 
               <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
-                <Link to="/register" className="h-16 px-10 bg-white text-black rounded-2xl font-black text-xl flex items-center justify-center gap-3 hover:bg-gray-200 transition-all shadow-[0_0_30px_rgba(255,255,255,0.1)] group">
-                  Start free trial now
-                  <ArrowRight className="group-hover:translate-x-1 transition-transform" size={24} />
+                <Link to="/register">
+                  <HoverBorderGradient
+                    containerClassName="rounded-2xl"
+                    className="h-16 px-10 bg-white text-black font-black text-xl flex items-center justify-center gap-3"
+                  >
+                    Start free trial now
+                    <ArrowRight size={24} />
+                  </HoverBorderGradient>
                 </Link>
-                <Link to="/login" className="h-16 px-10 bg-white/5 border border-white/10 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-white/10 transition-all">
-                  View Demo 
-                  <ArrowUpRight size={18} className="text-gray-500" />
+                <Link to="/login">
+                  <HoverBorderGradient
+                    containerClassName="rounded-2xl"
+                    className="h-16 px-10 bg-white/5 border border-white/10 text-white font-bold flex items-center justify-center gap-2"
+                  >
+                    View Demo 
+                    <ArrowUpRight size={18} className="text-gray-500" />
+                  </HoverBorderGradient>
                 </Link>
               </div>
 

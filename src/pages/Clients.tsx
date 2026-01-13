@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { api } from '../lib/api';
 import { Trash2, Edit2, Phone, Mail, MapPin, Search, UserPlus, X, CreditCard, FileText, Clock } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -19,6 +20,7 @@ export default function Clients() {
   const [clients, setClients] = useState<Client[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [formData, setFormData] = useState({ 
     name: '', 
@@ -31,26 +33,41 @@ export default function Clients() {
     status: 'active' as 'active' | 'inactive'
   });
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
   useEffect(() => {
     fetchClients();
-  }, []);
+    if (searchParams.get('add') === 'true') {
+      openAddModal();
+      // Remove the param after opening to avoid opening again on refresh
+      searchParams.delete('add');
+      setSearchParams(searchParams);
+    }
+  }, [searchParams]);
 
   const fetchClients = async () => {
     const token = localStorage.getItem('token');
     const isDemo = token?.startsWith('demo-token-');
 
     if (isDemo) {
-      const mockClients: Client[] = [
-        { id: 1, name: 'Acme Corp', email: 'billing@acme.com', address: '123 Enterprise Way, San Francisco, CA', phone: '+1 (555) 123-4567', payment_terms: 30, status: 'active' },
-        { id: 2, name: 'Global Tech', email: 'accounts@globaltech.io', address: '78 Innovation Blvd, Austin, TX', phone: '+1 (555) 987-6543', payment_terms: 15, status: 'active' },
-        { id: 3, name: 'Stark Industries', email: 'finance@stark.com', address: '10880 Malibu Point, Malibu, CA', phone: '+1 (555) 001-0011', payment_terms: 7, status: 'active' },
-        { id: 4, name: 'Wayne Ent.', email: 'admin@wayne.com', address: '1007 Mountain Drive, Gotham City', phone: '+1 (555) 888-9999', payment_terms: 60, status: 'inactive' },
-        { id: 5, name: 'Oscorp', email: 'invoices@oscorp.com', address: 'Empire State Bldg, New York, NY', phone: '+1 (555) 444-3333', payment_terms: 30, status: 'active' },
-        { id: 6, name: 'Cyberdyne', email: 'billing@cyberdyne.sys', address: 'Skynet Lab, Los Angeles, CA', payment_terms: 30, status: 'active' },
-        { id: 7, name: 'Umbrella Corp', email: 'legal@umbrella.net', address: 'Raccoon City, Mid-West', payment_terms: 90, status: 'inactive' },
-        { id: 8, name: 'Virtucon', email: 'finance@virtucon.com', address: 'Secret Volcano Base, Switzerland', payment_terms: 30, status: 'active' },
-      ];
-      setClients(mockClients);
+      const stored = localStorage.getItem('demo-clients');
+      if (stored) {
+        setClients(JSON.parse(stored));
+      } else {
+        const mockClients: Client[] = [
+          { id: 1, name: 'Acme Corp', email: 'billing@acme.com', address: '123 Enterprise Way, San Francisco, CA', phone: '+1 (555) 123-4567', payment_terms: 30, status: 'active' },
+          { id: 2, name: 'Global Tech', email: 'accounts@globaltech.io', address: '78 Innovation Blvd, Austin, TX', phone: '+1 (555) 987-6543', payment_terms: 15, status: 'active' },
+          { id: 3, name: 'Stark Industries', email: 'finance@stark.com', address: '10880 Malibu Point, Malibu, CA', phone: '+1 (555) 001-0011', payment_terms: 7, status: 'active' },
+          { id: 4, name: 'Wayne Ent.', email: 'admin@wayne.com', address: '1007 Mountain Drive, Gotham City', phone: '+1 (555) 888-9999', payment_terms: 60, status: 'inactive' },
+          { id: 5, name: 'Oscorp', email: 'invoices@oscorp.com', address: 'Empire State Bldg, New York, NY', phone: '+1 (555) 444-3333', payment_terms: 30, status: 'active' },
+          { id: 6, name: 'Cyberdyne', email: 'billing@cyberdyne.sys', address: 'Skynet Lab, Los Angeles, CA', payment_terms: 30, status: 'active' },
+          { id: 7, name: 'Umbrella Corp', email: 'legal@umbrella.net', address: 'Raccoon City, Mid-West', payment_terms: 90, status: 'inactive' },
+          { id: 8, name: 'Virtucon', email: 'finance@virtucon.com', address: 'Secret Volcano Base, Switzerland', payment_terms: 30, status: 'active' },
+        ];
+        setClients(mockClients);
+        localStorage.setItem('demo-clients', JSON.stringify(mockClients));
+      }
+      setLoading(false);
       return;
     }
 
@@ -60,23 +77,46 @@ export default function Clients() {
     } catch (err) {
       console.error(err);
       toast.error('Failed to load clients');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const token = localStorage.getItem('token');
+    const isDemo = token?.startsWith('demo-token-');
+
     try {
-      if (editingClient) {
-        await api.put(`/clients/${editingClient.id}`, formData);
-        toast.success('Client updated successfully');
+      if (isDemo) {
+        const currentClients = [...clients];
+        if (editingClient) {
+          const index = currentClients.findIndex(c => c.id === editingClient.id);
+          currentClients[index] = { ...editingClient, ...formData };
+          toast.success('Demo Client updated');
+        } else {
+          const newClient = {
+            ...formData,
+            id: Math.max(0, ...currentClients.map(c => c.id)) + 1
+          };
+          currentClients.push(newClient);
+          toast.success('Demo Client created');
+        }
+        localStorage.setItem('demo-clients', JSON.stringify(currentClients));
+        setClients(currentClients);
       } else {
-        await api.post('/clients', formData);
-        toast.success('Client created successfully');
+        if (editingClient) {
+          await api.put(`/clients/${editingClient.id}`, formData);
+          toast.success('Client updated successfully');
+        } else {
+          await api.post('/clients', formData);
+          toast.success('Client created successfully');
+        }
+        fetchClients();
       }
       setIsModalOpen(false);
       setEditingClient(null);
       resetForm();
-      fetchClients();
     } catch (err) {
       console.error(err);
       toast.error('Failed to save client');
@@ -85,10 +125,20 @@ export default function Clients() {
 
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this client?')) return;
+    const token = localStorage.getItem('token');
+    const isDemo = token?.startsWith('demo-token-');
+
     try {
-      await api.delete(`/clients/${id}`);
-      toast.success('Client deleted');
-      fetchClients();
+      if (isDemo) {
+        const currentClients = clients.filter(c => c.id !== id);
+        localStorage.setItem('demo-clients', JSON.stringify(currentClients));
+        setClients(currentClients);
+        toast.success('Demo Client deleted');
+      } else {
+        await api.delete(`/clients/${id}`);
+        toast.success('Client deleted');
+        fetchClients();
+      }
     } catch (err) {
       console.error(err);
       toast.error('Failed to delete client');
@@ -133,6 +183,17 @@ export default function Clients() {
     c.name.toLowerCase().includes(search.toLowerCase()) || 
     c.email.toLowerCase().includes(search.toLowerCase())
   );
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+          <p className="text-muted-foreground animate-pulse font-medium">Loading Directory...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto">

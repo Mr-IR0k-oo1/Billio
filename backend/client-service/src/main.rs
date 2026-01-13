@@ -34,6 +34,10 @@ struct Client {
     email: Option<String>,
     phone: Option<String>,
     address: Option<String>,
+    tax_id: Option<String>,
+    payment_terms: Option<i32>,
+    notes: Option<String>,
+    status: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -42,6 +46,10 @@ struct CreateClientRequest {
     email: Option<String>,
     phone: Option<String>,
     address: Option<String>,
+    tax_id: Option<String>,
+    payment_terms: Option<i32>,
+    notes: Option<String>,
+    status: Option<String>,
 }
 
 #[tokio::main]
@@ -81,7 +89,7 @@ async fn list_clients(
     State(state): State<Arc<AppState>>,
 ) -> Result<Json<Vec<Client>>, (StatusCode, String)> {
     let clients = sqlx::query_as::<_, Client>(
-        "SELECT id, user_id, name, email, phone, address FROM clients WHERE user_id = $1"
+        "SELECT id, user_id, name, email, phone, address, tax_id, payment_terms, notes, status FROM clients WHERE user_id = $1"
     )
     .bind(auth.user_id)
     .fetch_all(&state.db)
@@ -97,13 +105,17 @@ async fn create_client(
     Json(payload): Json<CreateClientRequest>,
 ) -> Result<Json<Client>, (StatusCode, String)> {
     let client = sqlx::query_as::<_, Client>(
-        "INSERT INTO clients (user_id, name, email, phone, address) VALUES ($1, $2, $3, $4, $5) RETURNING id, user_id, name, email, phone, address"
+        "INSERT INTO clients (user_id, name, email, phone, address, tax_id, payment_terms, notes, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, user_id, name, email, phone, address, tax_id, payment_terms, notes, status"
     )
     .bind(auth.user_id)
     .bind(payload.name)
     .bind(payload.email)
     .bind(payload.phone)
     .bind(payload.address)
+    .bind(payload.tax_id)
+    .bind(payload.payment_terms)
+    .bind(payload.notes)
+    .bind(payload.status)
     .fetch_one(&state.db)
     .await
     .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
@@ -117,7 +129,7 @@ async fn get_client(
     State(state): State<Arc<AppState>>,
 ) -> Result<Json<Client>, (StatusCode, String)> {
     let client = sqlx::query_as::<_, Client>(
-        "SELECT id, user_id, name, email, phone, address FROM clients WHERE id = $1 AND user_id = $2"
+        "SELECT id, user_id, name, email, phone, address, tax_id, payment_terms, notes, status FROM clients WHERE id = $1 AND user_id = $2"
     )
     .bind(id)
     .bind(auth.user_id)
@@ -136,12 +148,16 @@ async fn update_client(
     Json(payload): Json<CreateClientRequest>,
 ) -> Result<Json<Client>, (StatusCode, String)> {
     let client = sqlx::query_as::<_, Client>(
-        "UPDATE clients SET name = $1, email = $2, phone = $3, address = $4 WHERE id = $5 AND user_id = $6 RETURNING id, user_id, name, email, phone, address"
+        "UPDATE clients SET name = $1, email = $2, phone = $3, address = $4, tax_id = $5, payment_terms = $6, notes = $7, status = $8 WHERE id = $9 AND user_id = $10 RETURNING id, user_id, name, email, phone, address, tax_id, payment_terms, notes, status"
     )
     .bind(payload.name)
     .bind(payload.email)
     .bind(payload.phone)
     .bind(payload.address)
+    .bind(payload.tax_id)
+    .bind(payload.payment_terms)
+    .bind(payload.notes)
+    .bind(payload.status)
     .bind(id)
     .bind(auth.user_id)
     .fetch_one(&state.db)
