@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import PhorosLoader from './components/loaders/PhorosLoader';
 import { Layout } from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Invoices from './pages/Invoices';
@@ -29,8 +31,12 @@ const PublicRoute = ({ children, redirectTo = "/" }: { children: React.ReactNode
 };
 
 export function App() {
+  const [loading, setLoading] = useState(true);
+
   return (
-    <Router>
+    <>
+      {loading && <PhorosLoader onComplete={() => setLoading(false)} />}
+      <Router>
       <Routes>
         <Route path="/" element={
           <PublicRoute>
@@ -155,6 +161,7 @@ export function App() {
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
       <Toaster position="top-right" />
-    </Router>
+      </Router>
+    </>
   );
 }

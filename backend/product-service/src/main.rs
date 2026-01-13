@@ -9,7 +9,6 @@ use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 use tower_http::cors::CorsLayer;
 use common::AuthContext;
-use uuid::Uuid;
 use std::sync::Arc;
 use sqlx::postgres::PgPoolOptions;
 use sqlx::{Pool, Postgres, FromRow};
@@ -29,10 +28,11 @@ impl axum::extract::FromRef<Arc<AppState>> for Arc<String> {
 
 #[derive(Debug, FromRow, Serialize, Deserialize)]
 struct Product {
-    id: Uuid,
-    user_id: Uuid,
+    id: i32,
+    user_id: i32,
     name: String,
     description: Option<String>,
+    #[sqlx(default)]
     price: f64,
 }
 
@@ -79,11 +79,10 @@ async fn list_products(
     auth: AuthContext,
     State(state): State<Arc<AppState>>,
 ) -> Result<Json<Vec<Product>>, (StatusCode, String)> {
-    let products = sqlx::query_as!(
-        Product,
-        "SELECT id, user_id, name, description, price as \"price: f64\" FROM products WHERE user_id = $1",
-        auth.user_id
+    let products = sqlx::query_as::<_, Product>(
+        "SELECT id, user_id, name, description, price::float8 as price FROM products WHERE user_id = $1"
     )
+    .bind(auth.user_id)
     .fetch_all(&state.db)
     .await
     .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
@@ -96,14 +95,13 @@ async fn create_product(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<CreateProductRequest>,
 ) -> Result<Json<Product>, (StatusCode, String)> {
-    let product = sqlx::query_as!(
-        Product,
-        "INSERT INTO products (user_id, name, description, price) VALUES ($1, $2, $3, $4) RETURNING id, user_id, name, description, price as \"price: f64\"",
-        auth.user_id,
-        payload.name,
-        payload.description,
-        sqlx::types::BigDecimal::from_f64(payload.price).unwrap_or_default()
+    let product = sqlx::query_as::<_, Product>(
+        "INSERT INTO products (user_id, name, description, price) VALUES ($1, $2, $3, $4) RETURNING id, user_id, name, description, price::float8 as price"
     )
+    .bind(auth.user_id)
+    .bind(payload.name)
+    .bind(payload.description)
+    .bind(payload.price)
     .fetch_one(&state.db)
     .await
     .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
@@ -113,15 +111,14 @@ async fn create_product(
 
 async fn get_product(
     auth: AuthContext,
-    Path(id): Path<Uuid>,
+    Path(id): Path<i32>,
     State(state): State<Arc<AppState>>,
 ) -> Result<Json<Product>, (StatusCode, String)> {
-    let product = sqlx::query_as!(
-        Product,
-        "SELECT id, user_id, name, description, price as \"price: f64\" FROM products WHERE id = $1 AND user_id = $2",
-        id,
-        auth.user_id
+    let product = sqlx::query_as::<_, Product>(
+        "SELECT id, user_id, name, description, price::float8 as price FROM products WHERE id = $1 AND user_id = $2"
     )
+    .bind(id)
+    .bind(auth.user_id)
     .fetch_optional(&state.db)
     .await
     .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?
@@ -132,19 +129,18 @@ async fn get_product(
 
 async fn update_product(
     auth: AuthContext,
-    Path(id): Path<Uuid>,
+    Path(id): Path<i32>,
     State(state): State<Arc<AppState>>,
     Json(payload): Json<CreateProductRequest>,
 ) -> Result<Json<Product>, (StatusCode, String)> {
-    let product = sqlx::query_as!(
-        Product,
-        "UPDATE products SET name = $1, description = $2, price = $3 WHERE id = $4 AND user_id = $5 RETURNING id, user_id, name, description, price as \"price: f64\"",
-        payload.name,
-        payload.description,
-        sqlx::types::BigDecimal::from_f64(payload.price).unwrap_or_default(),
-        id,
-        auth.user_id
+    let product = sqlx::query_as::<_, Product>(
+        "UPDATE products SET name = $1, description = $2, price = $3 WHERE id = $4 AND user_id = $5 RETURNING id, user_id, name, description, price::float8 as price"
     )
+    .bind(payload.name)
+    .bind(payload.description)
+    .bind(payload.price)
+    .bind(id)
+    .bind(auth.user_id)
     .fetch_one(&state.db)
     .await
     .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
@@ -154,7 +150,7 @@ async fn update_product(
 
 async fn delete_product(
     auth: AuthContext,
-    Path(id): Path<Uuid>,
+    Path(id): Path<i32>,
     State(state): State<Arc<AppState>>,
 ) -> Result<StatusCode, (StatusCode, String)> {
     let result = sqlx::query("DELETE FROM products WHERE id = $1 AND user_id = $2")

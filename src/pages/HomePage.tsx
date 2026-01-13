@@ -11,8 +11,9 @@ import { InteractiveDemo } from '@/components/home/InteractiveDemo'
 import { HowItWorks } from '@/components/home/HowItWorks'
 import { Testimonials } from '@/components/home/Testimonials'
 import { Pricing } from '@/components/home/Pricing'
-import { FAQ } from '@/components/home/FAQ'
+import { motion } from 'framer-motion';
 import { FinalCTA } from '@/components/home/FinalCTA'
+import { FAQ } from '@/components/home/FAQ'
 import { Footer } from '@/components/home/Footer'
 
 const transitionVariants = {
@@ -49,14 +50,14 @@ export default function HomePage() {
                 </div>
 
                 {/* Hero Section */}
-                <section>
+                <section className="relative">
                     <div className="relative pt-24 md:pt-36">
                         <AnimatedGroup
                             variants={{
                                 container: {
                                     visible: {
                                         transition: {
-                                            delayChildren: 1,
+                                            delayChildren: 0.5,
                                         },
                                     },
                                 },
@@ -64,23 +65,25 @@ export default function HomePage() {
                                     hidden: {
                                         opacity: 0,
                                         y: 20,
+                                        filter: 'blur(10px)',
                                     },
                                     visible: {
                                         opacity: 1,
                                         y: 0,
+                                        filter: 'blur(0px)',
                                         transition: {
                                             type: 'spring',
                                             bounce: 0.3,
-                                            duration: 2,
+                                            duration: 1.5,
                                         },
                                     },
                                 },
                             }}
-                            className="mask-b-from-35% mask-b-to-90% absolute inset-0 top-56 -z-20 lg:top-32">
+                            className="mask-b-from-35% mask-b-to-90% absolute inset-0 top-56 -z-20 lg:top-32 overflow-hidden">
                             <img
                                 src="https://ik.imagekit.io/lrigu76hy/tailark/night-background.jpg?updatedAt=1745733451120"
                                 alt="background"
-                                className="hidden size-full dark:block"
+                                className="hidden size-full dark:block object-cover opacity-40"
                                 width="3276"
                                 height="4095"
                             />
@@ -92,41 +95,33 @@ export default function HomePage() {
                         />
 
                         <div className="mx-auto max-w-7xl px-6">
-                            <div className="text-center sm:mx-auto lg:mr-auto lg:mt-0">
+                            <div className="flex flex-col items-center text-center">
                                 <AnimatedGroup variants={transitionVariants}>
-                                    <Link
-                                        to="#link"
-                                        className="hover:bg-background dark:hover:border-t-border bg-muted group mx-auto flex w-fit items-center gap-4 rounded-full border p-1 pl-4 shadow-md shadow-zinc-950/5 transition-colors duration-300 dark:border-t-white/5 dark:shadow-zinc-950">
-                                        <span className="text-foreground text-sm">Introducing AI Invoice Intelligence</span>
-                                        <span className="dark:border-background block h-4 w-0.5 border-l bg-white dark:bg-zinc-700"></span>
-
-                                        <div className="bg-background group-hover:bg-muted size-6 overflow-hidden rounded-full duration-500">
-                                            <div className="flex w-12 -translate-x-1/2 duration-500 ease-in-out group-hover:translate-x-0">
-                                                <span className="flex size-6">
-                                                    <ArrowRight className="m-auto size-3" />
-                                                </span>
-                                                <span className="flex size-6">
-                                                    <ArrowRight className="m-auto size-3" />
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </Link>
+                                    <div
+                                        className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm font-medium text-white backdrop-blur-md transition-colors hover:bg-white/10">
+                                        <span className="flex h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+                                        <span className="text-blue-400">Introducing</span>
+                                        <span className="h-3 w-px bg-white/20" />
+                                        <span>AI Invoice Intelligence</span>
+                                        <ChevronRight className="ml-1 size-3.5 text-white/50" />
+                                    </div>
                                 </AnimatedGroup>
 
                                 <TextEffect
                                     preset="fade-in-blur"
                                     speedSegment={0.3}
                                     as="h1"
-                                    className="mx-auto mt-8 max-w-4xl text-balance text-5xl font-bold tracking-tight md:text-7xl lg:mt-16 xl:text-[5.5rem]">
+                                    className="mt-8 max-w-4xl text-balance text-5xl font-bold tracking-tight text-white md:text-7xl lg:mt-12 xl:text-8xl">
                                     Professional Invoices, Sent in Seconds.
                                 </TextEffect>
+                                
                                 <TextEffect
                                     per="line"
                                     preset="fade-in-blur"
                                     speedSegment={0.3}
                                     delay={0.5}
                                     as="p"
-                                    className="mx-auto mt-8 max-w-2xl text-balance text-lg text-muted-foreground leading-relaxed">
+                                    className="mt-8 max-w-2xl text-balance text-lg text-muted-foreground leading-relaxed md:text-xl">
                                     Stop wasting hours on admin work. Billio uses AI to write your descriptions, track payments, and get you paid 3x faster.
                                 </TextEffect>
 
@@ -135,39 +130,35 @@ export default function HomePage() {
                                         container: {
                                             visible: {
                                                 transition: {
-                                                    staggerChildren: 0.05,
-                                                    delayChildren: 0.75,
+                                                    staggerChildren: 0.1,
+                                                    delayChildren: 1,
                                                 },
                                             },
                                         },
                                         ...transitionVariants,
                                     }}
-                                    className="mt-12 flex flex-col items-center justify-center gap-2 md:flex-row">
-                                    <div
-                                        key={1}
-                                        className="bg-foreground/10 rounded-[calc(var(--radius-xl)+0.125rem)] border p-0.5">
-                                        <Button
-                                            asChild
-                                            size="lg"
-                                            className="rounded-xl px-5 text-base">
-                                            <Link to="/register">
-                                                <span className="text-nowrap">Try for Free</span>
-                                            </Link>
-                                        </Button>
-                                    </div>
+                                    className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
                                     <Button
-                                        key={2}
                                         asChild
                                         size="lg"
-                                        variant="ghost"
-                                        className="h-10.5 rounded-xl px-5">
+                                        className="h-14 rounded-2xl px-8 text-lg font-semibold shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+                                        <Link to="/register">
+                                            Try for Free <ArrowRight className="ml-2 size-5" />
+                                        </Link>
+                                    </Button>
+                                    <Button
+                                        asChild
+                                        size="lg"
+                                        variant="outline"
+                                        className="h-14 rounded-2xl px-8 text-lg font-semibold backdrop-blur-sm border-white/10">
                                         <Link to="/login">
-                                            <span className="text-nowrap">View Demo</span>
+                                            View Demo
                                         </Link>
                                     </Button>
                                 </AnimatedGroup>
                             </div>
                         </div>
+
 
                         <AnimatedGroup
                             variants={{
@@ -204,89 +195,26 @@ export default function HomePage() {
                 </section>
 
                 {/* Partners Section */}
-                <section className="bg-background pb-16 pt-16 md:pb-32 border-b border-white/5">
-                    <div className="group relative m-auto max-w-5xl px-6">
-                        <div className="absolute inset-0 z-10 flex scale-95 items-center justify-center opacity-0 duration-500 group-hover:scale-100 group-hover:opacity-100">
-                            <span className="block text-sm duration-150 hover:opacity-75 text-muted-foreground italic">
-                                Trusted by freelancers worldwide
-                            </span>
-                        </div>
-                        <div className="group-hover:blur-xs mx-auto mt-12 grid max-w-2xl grid-cols-4 gap-x-12 gap-y-8 transition-all duration-500 group-hover:opacity-50 sm:gap-x-16 sm:gap-y-14">
-                            <div className="flex">
-                                <img
-                                    className="mx-auto h-5 w-fit dark:invert opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all"
-                                    src="https://html.tailus.io/blocks/customers/nvidia.svg"
-                                    alt="Nvidia Logo"
-                                    height="20"
-                                    width="auto"
-                                />
+                <section className="py-24 border-y border-white/5 bg-black">
+                    <div className="home-container">
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.8 }}
+                            className="flex flex-col items-center"
+                        >
+                            <p className="text-gray-500 text-[10px] uppercase tracking-[0.3em] font-bold mb-12">Trusted by teams at</p>
+                            <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-8 md:gap-x-20 opacity-30 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-1000">
+                                <img className="h-4 md:h-5 w-auto" src="https://html.tailus.io/blocks/customers/nvidia.svg" alt="Nvidia" />
+                                <img className="h-3 md:h-4 w-auto" src="https://html.tailus.io/blocks/customers/column.svg" alt="Column" />
+                                <img className="h-3 md:h-4 w-auto" src="https://html.tailus.io/blocks/customers/github.svg" alt="GitHub" />
+                                <img className="h-4 md:h-5 w-auto" src="https://html.tailus.io/blocks/customers/nike.svg" alt="Nike" />
+                                <img className="h-4 md:h-5 w-auto" src="https://html.tailus.io/blocks/customers/lemonsqueezy.svg" alt="Lemon Squeezy" />
+                                <img className="h-3 md:h-4 w-auto" src="https://html.tailus.io/blocks/customers/laravel.svg" alt="Laravel" />
+                                <img className="h-5 md:h-6 w-auto" src="https://html.tailus.io/blocks/customers/openai.svg" alt="OpenAI" />
                             </div>
-
-                            <div className="flex">
-                                <img
-                                    className="mx-auto h-4 w-fit dark:invert opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all"
-                                    src="https://html.tailus.io/blocks/customers/column.svg"
-                                    alt="Column Logo"
-                                    height="16"
-                                    width="auto"
-                                />
-                            </div>
-                            <div className="flex">
-                                <img
-                                    className="mx-auto h-4 w-fit dark:invert opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all"
-                                    src="https://html.tailus.io/blocks/customers/github.svg"
-                                    alt="GitHub Logo"
-                                    height="16"
-                                    width="auto"
-                                />
-                            </div>
-                            <div className="flex">
-                                <img
-                                    className="mx-auto h-5 w-fit dark:invert opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all"
-                                    src="https://html.tailus.io/blocks/customers/nike.svg"
-                                    alt="Nike Logo"
-                                    height="20"
-                                    width="auto"
-                                />
-                            </div>
-                            <div className="flex">
-                                <img
-                                    className="mx-auto h-5 w-fit dark:invert opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all"
-                                    src="https://html.tailus.io/blocks/customers/lemonsqueezy.svg"
-                                    alt="Lemon Squeezy Logo"
-                                    height="20"
-                                    width="auto"
-                                />
-                            </div>
-                            <div className="flex">
-                                <img
-                                    className="mx-auto h-4 w-fit dark:invert opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all"
-                                    src="https://html.tailus.io/blocks/customers/laravel.svg"
-                                    alt="Laravel Logo"
-                                    height="16"
-                                    width="auto"
-                                />
-                            </div>
-                            <div className="flex">
-                                <img
-                                    className="mx-auto h-7 w-fit dark:invert opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all"
-                                    src="https://html.tailus.io/blocks/customers/lilly.svg"
-                                    alt="Lilly Logo"
-                                    height="28"
-                                    width="auto"
-                                />
-                            </div>
-
-                            <div className="flex">
-                                <img
-                                    className="mx-auto h-6 w-fit dark:invert opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all"
-                                    src="https://html.tailus.io/blocks/customers/openai.svg"
-                                    alt="OpenAI Logo"
-                                    height="24"
-                                    width="auto"
-                                />
-                            </div>
-                        </div>
+                        </motion.div>
                     </div>
                 </section>
 

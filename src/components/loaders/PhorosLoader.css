@@ -1,0 +1,31 @@
+/* Fullscreen black */
+.phoros-wrapper {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  display: grid;
+  place-items: center;
+  z-index: 9999;
+}
+
+/* Word container */
+.phoros-word {
+  display: flex;
+  gap: 0.14em;
+  font-size: 2.7rem;
+  letter-spacing: 0.3em;
+  perspective: 1000px;
+}
+
+/* Letters */
+.letter {
+  font-weight: 500;
+  color: #ffffff;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+/* Φ emphasis */
+.letter.phi {
+  color: #1f6fff;
+}

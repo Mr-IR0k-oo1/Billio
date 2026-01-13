@@ -43,6 +43,23 @@ export default function Reports() {
   }, [period]);
 
   const fetchDashboardStats = async () => {
+    const token = localStorage.getItem('token');
+    if (token?.startsWith('demo-token-')) {
+      setStats({
+        invoice_stats: [
+          { status: 'paid', count: 12, total_amount: '12450.00' },
+          { status: 'sent', count: 5, total_amount: '3200.50' },
+          { status: 'overdue', count: 3, total_amount: '2100.00' },
+          { status: 'draft', count: 4, total_amount: '610.00' }
+        ],
+        revenue_stats: [], // Handled by fetchRevenueData
+        client_stats: { total_clients: 12, active_clients: 8 },
+        overdue_stats: { overdue_count: 3, overdue_amount: '2100.00' }
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       const data = await api.get('/reports/dashboard-stats');
       setStats(data);
@@ -54,6 +71,26 @@ export default function Reports() {
   };
 
   const fetchRevenueData = async () => {
+    const token = localStorage.getItem('token');
+    if (token?.startsWith('demo-token-')) {
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const currentMonth = new Date().getMonth();
+      const mockData = [];
+      
+      const count = period === '12months' ? 12 : period === '6months' ? 6 : period === '3months' ? 3 : 1;
+      
+      for (let i = count - 1; i >= 0; i--) {
+        const monthIdx = (currentMonth - i + 12) % 12;
+        mockData.push({
+          period: months[monthIdx] + ' 2024',
+          revenue: 2000 + Math.random() * 3000,
+          collected: 1500 + Math.random() * 2500
+        });
+      }
+      setRevenueData(mockData);
+      return;
+    }
+
     try {
       const data = await api.get(`/reports/revenue?period=${period}`);
       const formatted = data.map((item: any) => ({

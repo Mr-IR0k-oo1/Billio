@@ -9,7 +9,6 @@ use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 use tower_http::cors::CorsLayer;
 use common::AuthContext;
-use uuid::Uuid;
 use std::sync::Arc;
 use sqlx::postgres::PgPoolOptions;
 use sqlx::{Pool, Postgres, FromRow};
@@ -29,8 +28,8 @@ impl axum::extract::FromRef<Arc<AppState>> for Arc<String> {
 
 #[derive(Debug, FromRow, Serialize, Deserialize)]
 struct Client {
-    id: Uuid,
-    user_id: Uuid,
+    id: i32,
+    user_id: i32,
     name: String,
     email: Option<String>,
     phone: Option<String>,
@@ -114,7 +113,7 @@ async fn create_client(
 
 async fn get_client(
     auth: AuthContext,
-    Path(id): Path<Uuid>,
+    Path(id): Path<i32>,
     State(state): State<Arc<AppState>>,
 ) -> Result<Json<Client>, (StatusCode, String)> {
     let client = sqlx::query_as::<_, Client>(
@@ -132,7 +131,7 @@ async fn get_client(
 
 async fn update_client(
     auth: AuthContext,
-    Path(id): Path<Uuid>,
+    Path(id): Path<i32>,
     State(state): State<Arc<AppState>>,
     Json(payload): Json<CreateClientRequest>,
 ) -> Result<Json<Client>, (StatusCode, String)> {
@@ -154,7 +153,7 @@ async fn update_client(
 
 async fn delete_client(
     auth: AuthContext,
-    Path(id): Path<Uuid>,
+    Path(id): Path<i32>,
     State(state): State<Arc<AppState>>,
 ) -> Result<StatusCode, (StatusCode, String)> {
     let result = sqlx::query("DELETE FROM clients WHERE id = $1 AND user_id = $2")

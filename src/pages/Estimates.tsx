@@ -35,6 +35,23 @@ export default function Estimates() {
 
   const fetchEstimates = async () => {
     setLoading(true);
+    const token = localStorage.getItem('token');
+    const isDemo = token?.startsWith('demo-token-');
+
+    if (isDemo) {
+      const mockEstimates: Estimate[] = [
+        { id: 1, client_name: 'Acme Corp', estimate_number: 'EST-2024-001', issue_date: new Date().toISOString(), expiry_date: new Date(Date.now() + 86400000 * 30).toISOString(), total: 5000.00, status: 'sent' },
+        { id: 2, client_name: 'Global Tech', estimate_number: 'EST-2024-002', issue_date: new Date(Date.now() - 86400000 * 5).toISOString(), expiry_date: new Date(Date.now() + 86400000 * 10).toISOString(), total: 2500.50, status: 'accepted' },
+        { id: 3, client_name: 'Stark Industries', estimate_number: 'EST-2024-003', issue_date: new Date(Date.now() - 86400000 * 12).toISOString(), expiry_date: new Date(Date.now() - 86400000 * 2).toISOString(), total: 12000.00, status: 'expired' },
+        { id: 4, client_name: 'Wayne Ent.', estimate_number: 'EST-2024-004', issue_date: new Date().toISOString(), expiry_date: new Date(Date.now() + 86400000 * 14).toISOString(), total: 8500.00, status: 'draft' },
+        { id: 5, client_name: 'Oscorp', estimate_number: 'EST-2024-005', issue_date: new Date(Date.now() - 86400000 * 20).toISOString(), expiry_date: new Date(Date.now() - 86400000 * 5).toISOString(), total: 3200.00, status: 'converted' },
+        { id: 6, client_name: 'Cyberdyne', estimate_number: 'EST-2024-006', issue_date: new Date(Date.now() - 86400000 * 2).toISOString(), expiry_date: new Date(Date.now() + 86400000 * 28).toISOString(), total: 4200.00, status: 'declined' },
+      ];
+      setEstimates(mockEstimates);
+      setLoading(false);
+      return;
+    }
+
     try {
       const data = await api.get('/estimates');
       setEstimates(data);

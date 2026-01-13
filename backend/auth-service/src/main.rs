@@ -16,7 +16,6 @@ use argon2::{
     Argon2,
 };
 use common::{create_jwt};
-use uuid::Uuid;
 use std::sync::Arc;
 use crate::db::DbPool;
 
@@ -72,7 +71,7 @@ struct AuthResponse {
 
 #[derive(Serialize)]
 struct UserInfo {
-    id: Uuid,
+    id: i32,
     email: String,
 }
 

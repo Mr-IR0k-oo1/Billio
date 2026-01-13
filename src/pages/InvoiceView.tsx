@@ -4,7 +4,6 @@ import { api } from '../lib/api';
 import { Edit2, Send, CheckCircle, ArrowLeft, Printer, Mail, ChevronLeft } from 'lucide-react';
 import { MinimalistTemplate } from '../components/templates/MinimalistTemplate';
 import { ProfessionalTemplate } from '../components/templates/ProfessionalTemplate';
-import { CreativeTemplate } from '../components/templates/CreativeTemplate';
 import toast from 'react-hot-toast';
 
 export default function InvoiceView() {
@@ -19,6 +18,40 @@ export default function InvoiceView() {
   }, [id]);
 
   const fetchInvoice = async () => {
+    const token = localStorage.getItem('token');
+    const isDemo = token?.startsWith('demo-token-');
+
+    if (isDemo) {
+      const mockInvoice = {
+        id: id,
+        invoice_number: id?.toString().padStart(4, '0'),
+        client_id: 1,
+        client_name: 'Acme Corp',
+        client_email: 'billing@acme.com',
+        client_address: '123 Enterprise Way, San Francisco, CA',
+        issue_date: new Date().toISOString(),
+        due_date: new Date(Date.now() + 86400000 * 7).toISOString(),
+        status: 'paid',
+        total: 4500.00,
+        subtotal: 4500.00,
+        tax_amount: 0,
+        discount: 0,
+        items: [
+          { id: 1, description: 'Premium Web Development', quantity: 30, unit_price: 150.00 },
+          { id: 2, description: 'SEO Optimization', quantity: 1, unit_price: 500.00 }
+        ],
+        template_type: 'professional'
+      };
+      setInvoice(mockInvoice);
+      setClient({
+        name: mockInvoice.client_name,
+        email: mockInvoice.client_email,
+        address: mockInvoice.client_address
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       const data = await api.get(`/invoices/${id}`);
       setInvoice(data);
@@ -107,8 +140,7 @@ export default function InvoiceView() {
 
   const TemplateComponent = {
     'minimalist': MinimalistTemplate,
-    'professional': ProfessionalTemplate,
-    'creative': CreativeTemplate
+    'professional': ProfessionalTemplate
   }[invoice.template_type as string || 'minimalist'] || MinimalistTemplate;
 
   return (

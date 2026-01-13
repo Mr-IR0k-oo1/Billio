@@ -21,6 +21,28 @@ export default function Dashboard() {
 
   useEffect(() => {
     const fetchData = async () => {
+      const token = localStorage.getItem('token');
+      const isDemo = token?.startsWith('demo-token-');
+
+      if (isDemo) {
+        // Mock data for demo mode
+        const mockInvoices: Invoice[] = [
+          { id: 1, client_name: 'Acme Corp', total: 4500.00, status: 'paid', due_date: new Date().toISOString() },
+          { id: 2, client_name: 'Global Tech', total: 1200.50, status: 'sent', due_date: new Date(Date.now() + 86400000 * 5).toISOString() },
+          { id: 3, client_name: 'Stark Industries', total: 8900.00, status: 'overdue', due_date: new Date(Date.now() - 86400000 * 2).toISOString() },
+          { id: 4, client_name: 'Wayne Ent.', total: 3200.00, status: 'draft', due_date: new Date(Date.now() + 86400000 * 10).toISOString() },
+          { id: 5, client_name: 'Oscorp', total: 560.00, status: 'paid', due_date: new Date(Date.now() - 86400000 * 15).toISOString() },
+        ];
+        
+        setStats({
+          totalInvoices: 24,
+          totalClients: 8,
+          revenue: 18360.50,
+          recentInvoices: mockInvoices
+        });
+        return;
+      }
+
       try {
         const invoices: Invoice[] = await api.get('/invoices');
         const clients = await api.get('/clients');
@@ -44,8 +66,8 @@ export default function Dashboard() {
     <div>
       <div className="page-header">
         <div>
-          <h1>Dashboard</h1>
-          <p className="text-muted-foreground text-sm mt-1">Monitor your business performance and invoices</p>
+          <h1 className="premium-gradient-text">Dashboard</h1>
+          <p className="text-muted-foreground/50 text-xs mt-1 uppercase tracking-widest font-bold">Business Overview</p>
         </div>
         <Link to="/invoices/new" className="btn-cta text-sm flex items-center gap-2 no-underline py-2">
           <Plus size={18} />

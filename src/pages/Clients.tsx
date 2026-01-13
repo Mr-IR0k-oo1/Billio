@@ -36,6 +36,24 @@ export default function Clients() {
   }, []);
 
   const fetchClients = async () => {
+    const token = localStorage.getItem('token');
+    const isDemo = token?.startsWith('demo-token-');
+
+    if (isDemo) {
+      const mockClients: Client[] = [
+        { id: 1, name: 'Acme Corp', email: 'billing@acme.com', address: '123 Enterprise Way, San Francisco, CA', phone: '+1 (555) 123-4567', payment_terms: 30, status: 'active' },
+        { id: 2, name: 'Global Tech', email: 'accounts@globaltech.io', address: '78 Innovation Blvd, Austin, TX', phone: '+1 (555) 987-6543', payment_terms: 15, status: 'active' },
+        { id: 3, name: 'Stark Industries', email: 'finance@stark.com', address: '10880 Malibu Point, Malibu, CA', phone: '+1 (555) 001-0011', payment_terms: 7, status: 'active' },
+        { id: 4, name: 'Wayne Ent.', email: 'admin@wayne.com', address: '1007 Mountain Drive, Gotham City', phone: '+1 (555) 888-9999', payment_terms: 60, status: 'inactive' },
+        { id: 5, name: 'Oscorp', email: 'invoices@oscorp.com', address: 'Empire State Bldg, New York, NY', phone: '+1 (555) 444-3333', payment_terms: 30, status: 'active' },
+        { id: 6, name: 'Cyberdyne', email: 'billing@cyberdyne.sys', address: 'Skynet Lab, Los Angeles, CA', payment_terms: 30, status: 'active' },
+        { id: 7, name: 'Umbrella Corp', email: 'legal@umbrella.net', address: 'Raccoon City, Mid-West', payment_terms: 90, status: 'inactive' },
+        { id: 8, name: 'Virtucon', email: 'finance@virtucon.com', address: 'Secret Volcano Base, Switzerland', payment_terms: 30, status: 'active' },
+      ];
+      setClients(mockClients);
+      return;
+    }
+
     try {
       const data = await api.get('/clients');
       setClients(data);

@@ -22,6 +22,21 @@ export default function Invoices() {
   }, []);
 
   const fetchInvoices = async () => {
+    const token = localStorage.getItem('token');
+    const isDemo = token?.startsWith('demo-token-');
+
+    if (isDemo) {
+      const mockInvoices: Invoice[] = [
+        { id: 101, client_name: 'Acme Corp', created_at: new Date().toISOString(), due_date: new Date().toISOString(), total: 4500.00, status: 'paid' },
+        { id: 102, client_name: 'Global Tech', created_at: new Date().toISOString(), due_date: new Date(Date.now() + 86400000 * 5).toISOString(), total: 1200.50, status: 'sent' },
+        { id: 103, client_name: 'Stark Industries', created_at: new Date().toISOString(), due_date: new Date(Date.now() - 86400000 * 2).toISOString(), total: 8900.00, status: 'overdue' },
+        { id: 104, client_name: 'Wayne Ent.', created_at: new Date().toISOString(), due_date: new Date(Date.now() + 86400000 * 10).toISOString(), total: 3200.00, status: 'draft' },
+        { id: 105, client_name: 'Oscorp', created_at: new Date().toISOString(), due_date: new Date(Date.now() - 86400000 * 15).toISOString(), total: 560.00, status: 'paid' },
+      ];
+      setInvoices(mockInvoices);
+      return;
+    }
+
     try {
       const data = await api.get('/invoices');
       setInvoices(data);

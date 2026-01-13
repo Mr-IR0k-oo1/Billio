@@ -22,6 +22,22 @@ export default function Products() {
   }, []);
 
   const fetchProducts = async () => {
+    const token = localStorage.getItem('token');
+    const isDemo = token?.startsWith('demo-token-');
+
+    if (isDemo) {
+      const mockProducts: Product[] = [
+        { id: 1, name: 'Web Development', unit_price: 150.00, description: 'High-quality React/Next.js development services' },
+        { id: 2, name: 'UI/UX Design', unit_price: 120.00, description: 'Custom interface and user experience design' },
+        { id: 3, name: 'SEO Optimization', unit_price: 85.00, description: 'Comprehensive search engine optimization audit and implementation' },
+        { id: 4, name: 'Mobile App Development', unit_price: 180.00, description: 'Native and cross-platform mobile application development' },
+        { id: 5, name: 'Consulting', unit_price: 200.00, description: 'Technical advisory and business strategy consulting' },
+        { id: 6, name: 'Graphic Design', unit_price: 90.00, description: 'Brand identity, logos, and marketing materials design' },
+      ];
+      setProducts(mockProducts);
+      return;
+    }
+
     try {
       const data = await api.get('/products');
       setProducts(data);

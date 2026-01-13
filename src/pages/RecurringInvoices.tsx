@@ -25,6 +25,20 @@ export default function RecurringInvoices() {
   }, []);
 
   const fetchRecurring = async () => {
+    const token = localStorage.getItem('token');
+    const isDemo = token?.startsWith('demo-token-');
+
+    if (isDemo) {
+      const mockRecurring: RecurringInvoice[] = [
+        { id: 1, client_name: 'Acme Corp', interval: 'month', interval_count: 1, start_date: '2024-01-01', next_run: new Date(Date.now() + 86400000 * 15).toISOString(), last_run: new Date(Date.now() - 86400000 * 15).toISOString(), status: 'active', total: 1500.00 },
+        { id: 2, client_name: 'Global Tech', interval: 'month', interval_count: 3, start_date: '2024-02-01', next_run: new Date(Date.now() + 86400000 * 45).toISOString(), last_run: new Date(Date.now() - 86400000 * 45).toISOString(), status: 'active', total: 4500.00 },
+        { id: 3, client_name: 'Stark Industries', interval: 'week', interval_count: 2, start_date: '2024-03-01', next_run: new Date(Date.now() + 86400000 * 4).toISOString(), last_run: new Date(Date.now() - 86400000 * 10).toISOString(), status: 'paused', total: 2000.00 },
+      ];
+      setInvoices(mockRecurring);
+      setLoading(false);
+      return;
+    }
+
     try {
       const data = await api.get('/recurring');
       setInvoices(data);

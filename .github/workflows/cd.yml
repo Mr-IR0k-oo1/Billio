@@ -1,0 +1,32 @@
+name: CD Pipeline (Staging/Production)
+
+on:
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types: [completed]
+    branches: [master, main]
+
+jobs:
+  deploy:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate with Container Registry
+        run: echo "Logging in to registry..."
+        # run: echo "${{ secrets.CR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build and Push Images
+        run: |
+          echo "Building and pushing docker images..."
+          # docker compose build
+          # docker compose push
+
+      - name: Deploy to Infrastructure
+        run: |
+          echo "Deploying to Kubernetes/Cloud Run/VPS..."
+          # Example for VPS:
+          # ssh user@host "cd /app && docker compose pull && docker compose up -d"
